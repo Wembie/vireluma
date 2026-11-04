@@ -16,7 +16,8 @@ const KB = 1024;
 /** Public pages are content pages: they should need almost no JavaScript. */
 const BUDGETS = [
   { match: /^design-system\//, js: 80 * KB, css: 30 * KB },
-  // Account area: React + supabase-js. Never loaded on public or emergency pages.
+  // Account area: React + auth client. Never loaded on public or emergency pages.
+  // The emergency page falls under the default 12 KB budget (no framework).
   { match: /^[a-z]{2}\/app\//, js: 110 * KB, css: 30 * KB },
   { match: /.*/, js: 12 * KB, css: 25 * KB },
 ];
@@ -58,7 +59,7 @@ for (const file of walk(dist).filter((f) => f.endsWith('.html'))) {
       return f ? total + gzipSize(f) : total;
     }, 0);
   const inlineJs = root
-    .querySelectorAll('script:not([src]):not([type="application/ld+json"])')
+    .querySelectorAll('script:not([src]):not([type="application/ld+json"]):not([type="application/json"])')
     .reduce((t, s) => t + gzipSync(s.text).length, 0);
   const jsBytes = sum(js) + inlineJs;
   const cssBytes = sum(css);

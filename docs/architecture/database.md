@@ -57,7 +57,7 @@ Any member except the owner may leave. Ownership is transferred, never invited.
 ## Visibility levels
 
 `public_emergency` (returned by the resolver) · `protected` (reserved for an additional
-authorization flow, M3 — never a shared PIN) · `private` (members only). Contacts default to
+authorization flow — never a shared PIN; not offered in the UI yet) · `private` (members only). Contacts default to
 `public_emergency` (so helpers can call); details default to `private`. `full_name` and
 `date_of_birth` are never returned by the resolver.
 
@@ -68,6 +68,38 @@ SECURITY DEFINER. Normalises the ID like `@vireluma/domain`, rate-limits per ide
 (120/min) and globally for unknown IDs (600/min), records a scan event, and returns
 `{ status: active | revoked | suspended | not_found | invalid | rate_limited, … }` with public
 fields only. Per-IP limits belong at the edge (after the domain migration, ADR-0002).
+
+## Read models (one call per screen)
+
+Each account screen reads through one SECURITY DEFINER function that checks membership itself
+and returns everything the screen needs, so a phone on a slow network makes one round trip
+instead of N+1 table reads. Writes stay on RLS-guarded tables or RPCs.
+
+| Function                                                        | Who                       | Returns                                                                                                                                    |
+| --------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `list_my_people()`                                              | signed-in                 | Dashboard rows (role, counts, active code, last scan for editors). Capped at 200.                                                          |
+| `get_person_workspace(person)`                                  | members                   | Person, contacts, details, active and last 5 revoked codes, consents, members (with email), invitations (managers), scan summary (editors) |
+| `get_person_activity(person, before_audit, before_scan, n≤100)` | editors (audit: managers) | Keyset pages over `audit_logs` / `scan_events` by id — constant cost however long the history grows.                                       |
+| `preview_invitation(token)`                                     | signed-in, rate limited   | What the invitee is accepting — details only when addressed to the signed-in email.                                                        |
+
+## Limits and invariants (M3)
+
+- Every foreign key has a non-partial index (cascades and joins stay cheap); enforced by
+  `004_core_product.test.sql` for every future migration.
+- Per person: at most 10 contacts and 30 details (limit trigger locks the parent row, so concurrent
+  inserts cannot race past it); at most 20 pending invitations. Per account: 50 owned people.
+- Reordering (`reorder_emergency_contacts` / `reorder_emergency_details`) requires the complete,
+  current list of ids, so a stale screen cannot silently drop an item (`40001`).
+- Invitations are shared as a one-time link (`/app/invite/#token`, token only in the fragment);
+  a new invitation to the same address replaces the pending one; existing members cannot be
+  re-invited.
+- The resolver also returns `is_minor` so helpers know to stay with a child.
+
+## Retention
+
+`private.purge_expired_data()` runs daily at 03:17 UTC through `pg_cron`: scan events after
+12 months, audit logs after 24 months, ended invitations after 90 days, rate-limit windows after
+1 hour. Periods are drafts pending legal review (`docs/privacy/data-retention.md`).
 
 ## Rules for new migrations
 

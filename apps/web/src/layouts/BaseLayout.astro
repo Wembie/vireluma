@@ -18,6 +18,8 @@ interface Props {
   xDefaultPath?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown>[];
+  /** Referrer policy; the emergency page uses `no-referrer`. */
+  referrer?: 'strict-origin-when-cross-origin' | 'no-referrer';
 }
 
 const props = Astro.props;
@@ -31,7 +33,7 @@ const siteVerification = build.indexable ? import.meta.env.PUBLIC_GOOGLE_SITE_VE
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="referrer" content={props.referrer ?? 'strict-origin-when-cross-origin'} />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#F7FAFC" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0B1D2E" media="(prefers-color-scheme: dark)" />
@@ -60,6 +62,7 @@ const siteVerification = build.indexable ? import.meta.env.PUBLIC_GOOGLE_SITE_VE
     <link rel="apple-touch-icon" href={urls.asset('brand/icons/apple-touch-icon.png')} />
     <link rel="manifest" href={urls.asset('manifest.webmanifest')} />
     <SeoHead {...props} />
+    <slot name="head" />
   </head>
   <body class="flex min-h-dvh flex-col">
     <slot />

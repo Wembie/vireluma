@@ -4,7 +4,7 @@ Guidance for AI coding agents and contributors working in this repository.
 
 VIRELUMA is an international emergency identification platform (permanent QR/NFC identities,
 trusted contacts). It protects data about vulnerable people: **safety, privacy and accessibility
-outrank speed**. Status and milestones: `docs/product/roadmap.md` (M1 done; M2 = Supabase backend).
+outrank speed**. Status and milestones: `docs/product/roadmap.md` (M1 done; M2 backend done; M3 core product).
 
 ## Commands (run from repo root)
 
@@ -33,6 +33,9 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
 - `apps/web` — Astro 7 static site. `src/pages/[locale]/[...slug].astro` generates all localized
   pages from `src/i18n/routes.ts`; page bodies live in `src/views/`. UI in `src/components/ui`
   (Astro; React only in `ui/react/` for real interactivity), site chrome in `components/site`.
+- `apps/web/src/components/app` — account area: one React island per page (`*Island.tsx`),
+  shared primitives in `kit.tsx`; data through `src/lib/backend/data.ts` (thin PostgREST client,
+  no supabase-js). `/p/` is rendered by `src/scripts/emergency-page.ts` (no framework, ADR-0011).
 - `packages/domain` — framework-free logic (URL service, public IDs, locales, contrast, the
   permission matrix mirroring the database). Imported as `@vireluma/domain`.
 - `supabase/` — migrations, pgTAP tests (`tests/database`) and local config. Read
@@ -99,7 +102,14 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
 - Astro 7 errors on unclosed/invalid HTML nesting; `compressHTML` is set to `true` explicitly.
 - Local ports: `pnpm dev` uses 4321; E2E uses 4329 (never reuses a running server); Lighthouse
   honours `LHCI_PORT` — use another port locally if the dev server is running.
+- App islands render statically first: never read `window` during render or in `useState`
+  initialisers without a guard, and render the same loading state on server and client.
+- Grid children default to `min-width:auto`; wide scrollers (tab lists) need
+  `grid-cols-[minmax(0,1fr)]` on the parent or they cause horizontal overflow on phones.
+- Product E2E (`e2e/product.spec.ts`) needs `E2E_AUTH=1` and the local stack, like `auth.spec.ts`.
 - Playwright tests touching React islands must wait for hydration (`client:visible`); see
   `hydrated()` in `e2e/design-system.spec.ts`.
+- Production migrations go through `supabase db push --linked` (never the dashboard SQL editor,
+  which skips the migration history). See `docs/deployment/supabase.md`.
 - GitHub Pages can't set headers (no CSP/HSTS customisation) and ignores `/vireluma/robots.txt`;
   per-page `<meta name="robots">` is the real indexing control (ADR-0002).

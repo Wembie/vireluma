@@ -132,7 +132,7 @@ jobs:
         run: pnpm exec lhci autorun --config=./lighthouserc.cjs
 
   database:
-    name: Database · RLS tests · Accounts E2E
+    name: Database · RLS tests · Product E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -144,8 +144,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Ephemeral local stack: no cloud project, no secrets. Only the services the tests need.
+      # Hosted runners occasionally have a port of the stack (5432x) already bound; log the
+      # holder and retry once after a clean stop instead of failing the whole pipeline.
       - name: Start Supabase (local, ephemeral)
-        run: pnpm exec supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,studio
+        run: |
+          start() { pnpm exec supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,studio; }
+          if ! start; then
+            echo "::warning::supabase start failed; ports in use:"
+            sudo ss -ltnp | grep -E ':5432[0-9]' || true
+            pnpm exec supabase stop --no-backup || true
+            sleep 10
+            start
+          fi
       - name: Apply all migrations from scratch
         run: pnpm exec supabase db reset --no-seed
       - name: Lint SQL (plpgsql_check)
@@ -164,8 +174,8 @@ jobs:
           pnpm build
       - name: Install Playwright Chromium
         run: pnpm --filter @vireluma/web exec playwright install --with-deps chromium
-      - name: Accounts E2E
-        run: pnpm --filter @vireluma/web exec playwright test auth --project=desktop
+      - name: Accounts and core product E2E
+        run: pnpm --filter @vireluma/web exec playwright test auth product --project=desktop
         env:
           E2E_AUTH: '1'
       - name: Stop Supabase

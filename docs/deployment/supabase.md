@@ -26,7 +26,18 @@ pnpm exec supabase config push                               # apply (production
 Still manual in the dashboard: leaked-password protection (paid plans), a real SMTP provider and
 email templates.
 
-## Applying migrations (M2, next step)
+## Applying migrations
+
+**Never paste migration SQL into the dashboard SQL editor.** The editor does not record the
+migration in `supabase_migrations.schema_migrations`, so the next `db push` would try to apply it
+again. If it happens, verify the schema matches (`pnpm exec supabase db diff --linked --schema
+public,private` shows no table/column/policy differences) and then record it with
+`pnpm exec supabase migration repair --status applied <version…> --linked`.
+
+Manual path (until the automated job exists): `pnpm exec supabase db push --linked --dry-run`,
+review, then `pnpm exec supabase db push --linked`.
+
+### Automated path (next step)
 
 A `deploy-database` job will run on `main` in the `production` environment (required reviewer)
 with secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`:

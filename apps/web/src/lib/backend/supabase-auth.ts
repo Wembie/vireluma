@@ -1,5 +1,6 @@
 import { AuthClient, type AuthError, type GoTrueClient } from '@supabase/auth-js';
 import type { AuthErrorCode, AuthPort, AuthResult, AuthUser } from '@vireluma/domain';
+import { SUPABASE_KEY as key, SUPABASE_URL as url, backendConfigured } from './config';
 
 /**
  * Supabase adapter for the AuthPort. Only the project URL and the publishable
@@ -9,10 +10,7 @@ import type { AuthErrorCode, AuthPort, AuthResult, AuthUser } from '@vireluma/do
  * (no realtime/storage/functions) to keep the account area light on phones.
  */
 
-const url = import.meta.env.PUBLIC_SUPABASE_URL;
-const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-export const backendConfigured = Boolean(url && key);
+export { backendConfigured };
 
 let client: GoTrueClient | null = null;
 
@@ -20,7 +18,7 @@ export function getSupabase(): GoTrueClient | null {
   if (!backendConfigured || typeof window === 'undefined') return null;
   client ??= new AuthClient({
     url: `${url}/auth/v1`,
-    headers: { apikey: key as string },
+    headers: { apikey: key },
     flowType: 'pkce',
     persistSession: true,
     autoRefreshToken: true,
@@ -31,14 +29,21 @@ export function getSupabase(): GoTrueClient | null {
   return client;
 }
 
+/** Current access token (refreshed by the auth client when close to expiry), or null. */
+export async function accessToken(): Promise<string | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data } = await sb.getSession();
+  return data.session?.access_token ?? null;
+}
+
 /** Calls a Postgres RPC through the Data API as the signed-in user (POST keeps args out of URLs). */
-async function rpc(auth: GoTrueClient, fn: string, args: Record<string, unknown> = {}): Promise<boolean> {
-  const { data } = await auth.getSession();
-  const token = data.session?.access_token;
+async function rpc(fn: string, args: Record<string, unknown> = {}): Promise<boolean> {
+  const token = await accessToken();
   if (!token) return false;
   const response = await fetch(`${url}/rest/v1/rpc/${fn}`, {
     method: 'POST',
-    headers: { apikey: key as string, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(args),
   });
   return response.ok;
@@ -138,8 +143,6 @@ export function createSupabaseAuth(callbackUrl: (next: 'account' | 'reset-passwo
     },
 
     requestAccountDeletion: () =>
-      guard(async (sb) => {
-        return (await rpc(sb, 'request_account_deletion')) ? ok(undefined) : fail('unknown');
-      }),
+      guard(async () => ((await rpc('request_account_deletion')) ? ok(undefined) : fail('unknown'))),
   };
 }
