@@ -136,6 +136,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      # The stack's host ports (54320-54329) sit inside Linux's ephemeral range (32768-60999):
+      # an outgoing connection, e.g. one of the parallel image pulls, can take 54322 as its
+      # source port and make Docker fail with "address already in use". Reserve the range
+      # before anything opens connections, then keep one clean retry as a safety net.
+      - name: Reserve the local stack ports
+        run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54329
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
@@ -144,14 +150,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Ephemeral local stack: no cloud project, no secrets. Only the services the tests need.
-      # Hosted runners occasionally have a port of the stack (5432x) already bound; log the
-      # holder and retry once after a clean stop instead of failing the whole pipeline.
       - name: Start Supabase (local, ephemeral)
         run: |
           start() { pnpm exec supabase start -x realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,studio; }
           if ! start; then
-            echo "::warning::supabase start failed; ports in use:"
-            sudo ss -ltnp | grep -E ':5432[0-9]' || true
+            echo "::warning::supabase start failed; sockets on 5432x:"
+            sudo ss -tanp | grep -E ':5432[0-9]' || true
             pnpm exec supabase stop --no-backup || true
             sleep 10
             start
