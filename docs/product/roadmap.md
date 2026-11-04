@@ -40,13 +40,26 @@ Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse
 Exit: cross-tenant and anonymous access tests pass in CI; no service key outside Supabase;
 accounts work end-to-end on the production project.
 
-## M3 — Core product
+## M3 — Core product · **in progress** (tested on local/CI; production accounts on hold)
 
-Dashboard, people, profile wizard (server-side drafts), editors, permissions, invitations,
-ownership transfer, consent center, `/p/#ID` emergency page, QR studio (SVG/PNG/print, templates,
-logo with error-correction check, decode-back readability validation), card and wristband
-layouts, URL-stability E2E across edits and redeploys. PWA decision (no caching of private data on
-shared devices by default).
+- [x] Dashboard of people with setup status, codes and last scan
+- [x] Person creation with consent (minor ⇒ guardian confirmation); setup resumes from server data
+- [x] Editors: profile, emergency contacts (E.164 with preview), emergency details (private by
+      default; health kinds gated by consent), ordering, per-person limits
+- [x] Identifiers: issue, replace (lost tag), revoke; history
+- [x] Sharing: one-time invitation links bound to an email, roles, removal, leave, ownership
+      transfer; pause and deletion; consent center (health data)
+- [x] Activity: scans and value-free audit trail, keyset paginated
+- [x] `/p/#ID` emergency page: no framework (~3 KB JS), 4 languages, call/WhatsApp, optional
+      location message, manual code entry, honest states (ADR-0011)
+- [x] QR studio: card / sticker / wristband / plain at print size, SVG/PNG/print, centre symbol
+      with forced ECC H, decode-back readability check
+- [x] Retention purge (`pg_cron`), indexes on every foreign key, read models (one call per screen)
+- [x] E2E (desktop + mobile, axe + overflow) for the full flow against the local stack
+- [ ] PWA decision (no caching of private data on shared devices by default)
+- [ ] URL-stability E2E across redeploys (needs the production deploy of M3)
+- [ ] Physical print tests of the layouts with real phones (claims only after tests)
+- [ ] `protected` visibility flow (verified responders) — design pending, never a shared PIN
 
 ## M4 — Devices
 

@@ -10,9 +10,9 @@ Status: engineering draft. Retention periods must be confirmed by qualified lega
 | Health details            | Health-data consent active               | Deleted immediately when consent is revoked                                               |
 | Revoked identifiers       | Person exists                            | Deleted with the person; keep history for audit                                           |
 | Consent records           | Person exists                            | Deleted with the person — **legal review: may need longer retention as proof of consent** |
-| Invitations               | Until accepted/revoked/expired (7 days)  | Purge job (to implement) after 90 days                                                    |
-| Audit logs                | Pseudonymous (IDs and column names only) | Proposed 24 months — **legal review**                                                     |
-| Scan events               | No IP / user agent                       | Proposed 12 months — **legal review**                                                     |
+| Invitations               | Until accepted/revoked/expired (7 days)  | Purged daily (`pg_cron`) 90 days after acceptance, revocation or expiry                   |
+| Audit logs                | Pseudonymous (IDs and column names only) | Purged daily after 24 months (proposed) — **legal review**                                |
+| Scan events               | No IP / user agent                       | Purged daily after 12 months (proposed) — **legal review**                                |
 
 ## Account deletion
 
