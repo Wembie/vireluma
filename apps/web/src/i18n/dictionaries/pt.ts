@@ -366,6 +366,8 @@ export const pt: Dictionary = {
   },
   app: {
     signIn: 'Entrar',
+    myAccount: 'Minha conta',
+    goToPeople: 'Ver minhas pessoas',
     loading: 'Carregando…',
     notConfigured: 'As contas ainda não estão disponíveis nesta versão do VIRELUMA.',
     fields: {

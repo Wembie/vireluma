@@ -360,6 +360,8 @@ export const en: Dictionary = {
   },
   app: {
     signIn: 'Sign in',
+    myAccount: 'My account',
+    goToPeople: 'Go to my people',
     loading: 'Loading…',
     notConfigured: 'Accounts are not available in this version of VIRELUMA yet.',
     fields: {

@@ -60,8 +60,12 @@ const compatIcons = [QrCode, Nfc, Sticker, CreditCard];
       <div class="mt-9 flex flex-col gap-3 sm:flex-row">
         {backend.configured ? (
           <>
-            <Button href={urls.path(appPath(locale, 'register'))} size="lg">
+            <Button href={urls.path(appPath(locale, 'register'))} size="lg" class="vl-signed-out">
               {t.app.login.register}
+              <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
+            </Button>
+            <Button href={urls.path(appPath(locale, 'account'))} size="lg" class="vl-signed-in">
+              {t.app.goToPeople}
               <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
             </Button>
             <Button href={href('howItWorks')} variant="outline" size="lg">
@@ -88,7 +92,7 @@ const compatIcons = [QrCode, Nfc, Sticker, CreditCard];
         )}
       </div>
       {backend.configured && (
-        <p class="mt-4 text-sm text-fg-muted">
+        <p class="vl-signed-out mt-4 text-sm text-fg-muted">
           {t.app.register.haveAccount}{' '}
           <a href={urls.path(appPath(locale, 'login'))} class="font-semibold">
             {t.app.signIn}

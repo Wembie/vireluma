@@ -53,6 +53,16 @@ const siteVerification = build.indexable ? import.meta.env.PUBLIC_GOOGLE_SITE_VE
           pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         document.documentElement.dataset.themePref = pref;
+        // Session hint for public pages ("My account" instead of "Sign in"). UI only: it reads
+        // whether the auth client stored a refresh token, never trusts it for access.
+        let session = 'out';
+        try {
+          const saved = JSON.parse(localStorage.getItem('vireluma-auth') || 'null');
+          if (saved && typeof saved.refresh_token === 'string' && saved.refresh_token) session = 'in';
+        } catch {
+          /* storage blocked or unreadable: show the signed-out links */
+        }
+        document.documentElement.dataset.session = session;
       })();
     </script>
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />

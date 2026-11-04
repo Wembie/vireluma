@@ -32,7 +32,7 @@ test('register, confirm email and land on the account page', async ({ page }) =>
   await expect(page).not.toHaveURL(/code=/);
 });
 
-test('sign out, reject a wrong password, sign back in', async ({ page }) => {
+test('sign out, reject a wrong password, sign back in', async ({ page, isMobile }) => {
   await page.goto('en/app/login/');
   await hydrated(page);
   await page.getByLabel('Email').fill(email);
@@ -44,9 +44,25 @@ test('sign out, reject a wrong password, sign back in', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByTestId('account-email')).toHaveText(email);
 
+  // Public pages know there is a session and point to the account instead of "Sign in".
+  // (On phones the header links live in the collapsed menu; the hero button is always visible.)
+  await page.goto('en/');
+  await expect(page.getByRole('link', { name: 'Go to my people' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Create an account' })).toBeHidden();
+  if (!isMobile) {
+    await expect(page.getByRole('banner').getByRole('link', { name: 'My account' })).toBeVisible();
+    await expect(page.getByRole('banner').getByRole('link', { name: 'Sign in', exact: true })).toBeHidden();
+  }
+
   await page.goto('en/app/settings/');
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page).toHaveURL(/\/en\/app\/login\/$/);
+  await page.goto('en/');
+  await expect(page.getByRole('link', { name: 'Create an account' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Go to my people' })).toBeHidden();
+  if (!isMobile) {
+    await expect(page.getByRole('banner').getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
+  }
   await page.goto('en/app/');
   await expect(page).toHaveURL(/\/en\/app\/login\/$/);
 });
