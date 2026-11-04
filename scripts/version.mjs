@@ -11,22 +11,11 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SEMVER, changelogSection } from './version-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SEMVER =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$/;
-
 export function readVersion() {
   return readFileSync(join(root, 'VERSION'), 'utf8').trim();
-}
-
-export function changelogSection(changelog, version) {
-  const escaped = version.replace(/\./g, '\\.');
-  const match = new RegExp(`^## \\[${escaped}\\](.*)$([\\s\\S]*?)(?=^## \\[|(?![\\s\\S]))`, 'm').exec(
-    changelog,
-  );
-  if (!match) return null;
-  return { heading: match[1].trim(), body: match[2].trim() };
 }
 
 function fail(message) {

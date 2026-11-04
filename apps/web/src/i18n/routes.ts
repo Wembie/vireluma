@@ -1,4 +1,4 @@
-import { LOCALES, type Locale } from '@vireluma/domain';
+import { LOCALES, trimSlashes, type Locale } from '@vireluma/domain';
 
 /**
  * Public marketing routes and their localized slugs.
@@ -37,7 +37,7 @@ export function routePath(locale: Locale, key: RouteKey): string {
 
 /** Finds the route for a path relative to the base path (leading/trailing slashes optional). */
 export function matchRoute(relativePath: string): { locale: Locale; key: RouteKey } | null {
-  const [first = '', ...rest] = relativePath.replace(/^\/+|\/+$/g, '').split('/');
+  const [first = '', ...rest] = trimSlashes(relativePath).split('/');
   const locale = LOCALES.find((l) => l === first);
   if (!locale) return null;
   const slug = rest.join('/');

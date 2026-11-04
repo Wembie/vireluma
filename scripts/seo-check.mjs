@@ -14,10 +14,16 @@ import { parse } from 'node-html-parser';
 
 const dist = process.argv[2] ?? 'apps/web/dist';
 const origin = (process.env.PUBLIC_SITE_ORIGIN ?? 'https://wembie.github.io').replace(/\/$/, '');
-const basePath = `/${(process.env.PUBLIC_BASE_PATH ?? '/vireluma').replace(/^\/+|\/+$/g, '')}`.replace(
-  /^\/$/,
-  '',
-);
+/** Linear-time slash trim (a `/\/+$/` regex backtracks polynomially on many slashes). */
+const trimSlashes = (value) => {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value[start] === '/') start++;
+  while (end > start && value[end - 1] === '/') end--;
+  return value.slice(start, end);
+};
+const trimmedBase = trimSlashes(process.env.PUBLIC_BASE_PATH ?? '/vireluma');
+const basePath = trimmedBase ? `/${trimmedBase}` : '';
 const production = process.env.PUBLIC_APP_ENV === 'production';
 const PRIVATE = /^(p|app|design-system)\/|^404\.html$/;
 

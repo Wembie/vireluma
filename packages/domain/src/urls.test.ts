@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { generatePublicId } from './public-id.ts';
-import { createUrlService, normalizeBasePath, normalizeOrigin, readProfileIdFromLocation } from './urls.ts';
+import {
+  createUrlService,
+  normalizeBasePath,
+  normalizeOrigin,
+  readProfileIdFromLocation,
+  trimSlashes,
+} from './urls.ts';
 
 const ghPages = createUrlService({ origin: 'https://wembie.github.io', basePath: '/vireluma' });
 const customDomain = createUrlService({ origin: 'https://example.org', basePath: '' });
@@ -30,6 +36,9 @@ describe('normalizeBasePath', () => {
     ['//a/b//', '/a/b'],
   ])('%j → %j', (input, expected) => {
     expect(normalizeBasePath(input)).toBe(expected);
+  });
+  it('rejects over-long input', () => {
+    expect(() => normalizeBasePath(`/${'a'.repeat(300)}`)).toThrow(/too long/);
   });
   it('rejects unsafe characters', () => {
     expect(() => normalizeBasePath('/a b')).toThrow();
@@ -88,5 +97,24 @@ describe('readProfileIdFromLocation', () => {
     expect(readProfileIdFromLocation({ hash: '', search: '' })).toBeNull();
     expect(readProfileIdFromLocation({ hash: '#%E0%A4%A', search: '' })).toBeNull();
     expect(readProfileIdFromLocation({ hash: '#<script>', search: '' })).toBeNull();
+  });
+});
+
+describe('trimSlashes', () => {
+  it.each([
+    ['', ''],
+    ['/', ''],
+    ['///', ''],
+    ['/a/b/', 'a/b'],
+    ['a//b', 'a//b'],
+  ])('%j → %j', (input, expected) => {
+    expect(trimSlashes(input)).toBe(expected);
+  });
+
+  it('runs in linear time on adversarial input (ReDoS regression)', () => {
+    const adversarial = `${'/'.repeat(200_000)}x${'/'.repeat(200_000)}x`;
+    const start = performance.now();
+    expect(trimSlashes(adversarial)).toBe(adversarial.slice(200_000));
+    expect(performance.now() - start).toBeLessThan(50);
   });
 });

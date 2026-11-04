@@ -54,19 +54,42 @@ export function normalizeOrigin(origin: string): string {
   return url.origin;
 }
 
+/**
+ * Removes leading and trailing `/` in linear time. Deliberately not a regex:
+ * `/\/+$/` backtracks polynomially on inputs with many inner slashes (ReDoS).
+ */
+export function trimSlashes(value: string): string {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value.charCodeAt(start) === 47) start++;
+  while (end > start && value.charCodeAt(end - 1) === 47) end--;
+  return value.slice(start, end);
+}
+
+const MAX_BASE_PATH_LENGTH = 256;
+
 export function normalizeBasePath(basePath: string): string {
-  const trimmed = basePath.trim().replace(/^\/+|\/+$/g, '');
+  if (basePath.length > MAX_BASE_PATH_LENGTH) throw new Error('Base path is too long');
+  const trimmed = trimSlashes(basePath.trim());
   if (trimmed === '') return '';
-  if (!/^[A-Za-z0-9._~-]+(\/[A-Za-z0-9._~-]+)*$/.test(trimmed)) {
+  // Segments cannot contain '/', so this pattern is unambiguous and matches in linear time.
+  if (!/^[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~-]+)*$/.test(trimmed)) {
     throw new Error(`Invalid base path: "${basePath}"`);
   }
   return `/${trimmed}`;
 }
 
+/** True when the last path segment looks like a file name (`robots.txt`, `logo.svg`). */
+function hasFileExtension(path: string): boolean {
+  const segment = path.slice(path.lastIndexOf('/') + 1);
+  const dot = segment.lastIndexOf('.');
+  return dot > 0 && dot < segment.length - 1 && /^[a-z0-9]+$/i.test(segment.slice(dot + 1));
+}
+
 function joinPath(basePath: string, routePath: string, trailingSlash: boolean): string {
-  const clean = routePath.replace(/^\/+/, '');
-  let path = `${basePath}/${clean}`;
-  if (trailingSlash && !path.endsWith('/') && !/\.[a-z0-9]+$/i.test(path)) path += '/';
+  let path = `${basePath}/${trimSlashes(routePath)}`;
+  if (routePath.endsWith('/') && !path.endsWith('/')) path += '/';
+  if (trailingSlash && !path.endsWith('/') && !hasFileExtension(path)) path += '/';
   return path;
 }
 
