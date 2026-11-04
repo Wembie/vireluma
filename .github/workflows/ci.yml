@@ -132,7 +132,7 @@ jobs:
         run: pnpm exec lhci autorun --config=./lighthouserc.cjs
 
   database:
-    name: Database · RLS tests · Accounts E2E
+    name: Database · RLS tests · Product E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -164,8 +164,8 @@ jobs:
           pnpm build
       - name: Install Playwright Chromium
         run: pnpm --filter @vireluma/web exec playwright install --with-deps chromium
-      - name: Accounts E2E
-        run: pnpm --filter @vireluma/web exec playwright test auth --project=desktop
+      - name: Accounts and core product E2E
+        run: pnpm --filter @vireluma/web exec playwright test auth product --project=desktop
         env:
           E2E_AUTH: '1'
       - name: Stop Supabase
