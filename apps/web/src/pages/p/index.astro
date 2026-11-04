@@ -1,0 +1,90 @@
+---
+/**
+ * Permanent emergency resolver: {origin}{base}/p/#{ID} (ADR-0004, ADR-0011).
+ *
+ * One static page for every identifier. The identifier stays in the fragment
+ * (never sent to the host); the profile is fetched by POST and rendered with
+ * a few kilobytes of plain JavaScript — no framework — because the person
+ * scanning may be on an old phone with a weak signal. Never indexed.
+ */
+import { LOCALES, type Locale } from '@vireluma/domain';
+import Logo from '../../components/brand/Logo.astro';
+import { urls } from '../../config/site';
+import { DICTIONARIES, routePath } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SUPABASE_URL } from '../../lib/backend/config';
+
+const es = DICTIONARIES.es;
+const payload = Object.fromEntries(
+  LOCALES.map((l) => [
+    l,
+    {
+      ...DICTIONARIES[l].emergency,
+      disclaimer: DICTIONARIES[l].footer.disclaimer,
+      languageName: DICTIONARIES[l].meta.languageName,
+      home: urls.path(routePath(l, 'home')),
+    },
+  ]),
+) as Record<Locale, unknown>;
+// Safe inside <script type="application/json">: no "<" can close the element.
+const json = JSON.stringify(payload).replace(/</g, '\\u003c');
+const supabaseOrigin = SUPABASE_URL ? new URL(SUPABASE_URL).origin : null;
+---
+
+<BaseLayout
+  locale="es"
+  title={`${es.emergency.title} — VIRELUMA`}
+  description={es.emergency.description}
+  path="p/"
+  noindex
+  referrer="no-referrer"
+>
+  {supabaseOrigin && <link slot="head" rel="preconnect" href={supabaseOrigin} crossorigin />}
+  <header class="border-b border-border bg-bg">
+    <div class="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4">
+      <Logo label={null} class="h-7" />
+      <label class="flex items-center gap-2 text-sm text-fg-muted">
+        <span id="ep-language-label">{es.emergency.language}</span>
+        <select
+          id="ep-language"
+          class="h-11 rounded-md border border-border-strong bg-surface px-2 text-sm text-fg"
+        >
+          {LOCALES.map((l) => (
+            <option value={l}>{DICTIONARIES[l].meta.languageName}</option>
+          ))}
+        </select>
+      </label>
+    </div>
+  </header>
+  <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
+    <div class="mx-auto grid max-w-2xl gap-6 px-4 py-6">
+      <p id="ep-status" role="status" aria-live="polite" class="text-lg text-fg-muted">
+        {es.emergency.loading}
+      </p>
+      <noscript>
+        <p class="text-fg">
+          Activa JavaScript para ver este perfil de emergencia. · Enable JavaScript to see this emergency
+          profile.
+        </p>
+      </noscript>
+      <div id="ep-root" class="grid gap-6"></div>
+    </div>
+  </main>
+  <footer class="border-t border-border py-6">
+    <div class="mx-auto grid max-w-2xl gap-2 px-4 text-sm text-fg-muted">
+      <p id="ep-privacy">{es.emergency.privacy}</p>
+      <p id="ep-disclaimer">{es.footer.disclaimer}</p>
+      <p>
+        <a id="ep-about" href={urls.path(routePath('es', 'home'))}>
+          {es.emergency.about}
+        </a>
+      </p>
+    </div>
+  </footer>
+  <script is:inline type="application/json" id="ep-strings" set:html={json} />
+</BaseLayout>
+
+<script>
+  import { start } from '../../scripts/emergency-page';
+  start();
+</script>
