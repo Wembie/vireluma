@@ -26,8 +26,8 @@ import Badge from '../components/ui/Badge.astro';
 import Button from '../components/ui/Button.astro';
 import Card from '../components/ui/Card.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
-import { project, urls } from '../config/site';
-import { getDictionary, routePath } from '../i18n';
+import { backend, project, urls } from '../config/site';
+import { appPath, getDictionary, routePath } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -58,21 +58,43 @@ const compatIcons = [QrCode, Nfc, Sticker, CreditCard];
       </h1>
       <p class="mt-6 max-w-xl text-lg text-fg-muted">{p.hero.lead}</p>
       <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-        <Button href={href('howItWorks')} size="lg">
-          {t.cta.howItWorks}
-          <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
-        </Button>
-        <Button
-          href={project.repositoryUrl}
-          external
-          externalLabel={t.a11y.opensInNewTab}
-          variant="outline"
-          size="lg"
-        >
-          <CodeXml slot="icon-start" class="size-5" aria-hidden="true" />
-          {t.cta.followProject}
-        </Button>
+        {backend.configured ? (
+          <>
+            <Button href={urls.path(appPath(locale, 'register'))} size="lg">
+              {t.app.login.register}
+              <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
+            </Button>
+            <Button href={href('howItWorks')} variant="outline" size="lg">
+              {t.cta.howItWorks}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button href={href('howItWorks')} size="lg">
+              {t.cta.howItWorks}
+              <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
+            </Button>
+            <Button
+              href={project.repositoryUrl}
+              external
+              externalLabel={t.a11y.opensInNewTab}
+              variant="outline"
+              size="lg"
+            >
+              <CodeXml slot="icon-start" class="size-5" aria-hidden="true" />
+              {t.cta.followProject}
+            </Button>
+          </>
+        )}
       </div>
+      {backend.configured && (
+        <p class="mt-4 text-sm text-fg-muted">
+          {t.app.register.haveAccount}{' '}
+          <a href={urls.path(appPath(locale, 'login'))} class="font-semibold">
+            {t.app.signIn}
+          </a>
+        </p>
+      )}
       <ul class="mt-10 grid gap-3">
         {p.hero.points.map((point) => (
           <li class="flex items-start gap-3">

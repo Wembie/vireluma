@@ -9,9 +9,10 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 
 ## [0.2.0] - 2026-11-04
 
-Production note: accounts, people management and code resolution ship in the code but stay
-disabled on the public site until a privacy notice (legal review) and a real email provider
-exist. They are verified end to end against a local backend in CI.
+Production note: accounts, people management and code resolution are enabled on the public site
+as a **beta** (owner decision, 2026-11-04). Legal documents are still pending legal review, the
+backend runs on the Supabase Free plan without backups, and confirmation emails use Supabase's
+default sender until a real email provider is configured.
 
 ### Added
 

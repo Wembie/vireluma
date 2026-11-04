@@ -29,9 +29,9 @@ export const en: Dictionary = {
     themeSystem: 'System',
   },
   status: {
-    label: 'In development',
+    label: 'Beta',
     message:
-      'VIRELUMA is under construction. Profiles cannot be created yet; we share our progress in the open.',
+      'VIRELUMA is in beta: you can now create an account and test profiles. Legal documents are pending legal review; we share our progress in the open.',
   },
   cta: {
     howItWorks: 'See how it works',
@@ -353,7 +353,7 @@ export const en: Dictionary = {
         },
         {
           q: 'Can I create a profile yet?',
-          a: 'Not yet. VIRELUMA is in development and we publish progress openly on GitHub.',
+          a: 'Yes, in beta. Create an account, add the person and activate their code. During the beta, use test data or only what is essential: legal documents are still under review.',
         },
       ],
     },

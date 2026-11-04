@@ -31,9 +31,9 @@ export const es = {
     themeSystem: 'Sistema',
   },
   status: {
-    label: 'En desarrollo',
+    label: 'Beta',
     message:
-      'VIRELUMA está en construcción. Todavía no es posible crear perfiles; publicamos el avance de forma abierta.',
+      'VIRELUMA está en fase beta: ya puedes crear una cuenta y perfiles de prueba. Los documentos legales están pendientes de revisión jurídica; publicamos el avance de forma abierta.',
   },
   cta: {
     howItWorks: 'Ver cómo funciona',
@@ -360,7 +360,7 @@ export const es = {
         },
         {
           q: '¿Ya puedo crear un perfil?',
-          a: 'Todavía no. VIRELUMA está en desarrollo y publicamos el avance de forma abierta en GitHub.',
+          a: 'Sí, en fase beta. Crea una cuenta, añade a la persona y activa su código. Mientras dure la beta, usa datos de prueba o solo lo imprescindible: los documentos legales siguen en revisión.',
         },
       ],
     },
