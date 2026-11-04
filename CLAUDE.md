@@ -101,5 +101,7 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
   honours `LHCI_PORT` — use another port locally if the dev server is running.
 - Playwright tests touching React islands must wait for hydration (`client:visible`); see
   `hydrated()` in `e2e/design-system.spec.ts`.
+- Production migrations go through `supabase db push --linked` (never the dashboard SQL editor,
+  which skips the migration history). See `docs/deployment/supabase.md`.
 - GitHub Pages can't set headers (no CSP/HSTS customisation) and ignores `/vireluma/robots.txt`;
   per-page `<meta name="robots">` is the real indexing control (ADR-0002).
