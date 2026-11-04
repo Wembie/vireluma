@@ -7,7 +7,7 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-11-04
+## [0.2.1] - 2026-11-04
 
 Accounts, people management and emergency-code resolution are enabled on the public site as a
 **beta** (owner decision). Legal documents are still pending legal review, the backend runs on the

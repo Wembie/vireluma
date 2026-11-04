@@ -40,7 +40,7 @@ Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse
 Exit: cross-tenant and anonymous access tests pass in CI; no service key outside Supabase;
 accounts work end-to-end on the production project.
 
-## M3 — Core product · **in beta** (code in 0.2.0, enabled in production in 0.3.0)
+## M3 — Core product · **in beta** (code in 0.2.0, enabled in production in 0.2.1)
 
 - [x] Dashboard of people with setup status, codes and last scan
 - [x] Person creation with consent (minor ⇒ guardian confirmation); setup resumes from server data
