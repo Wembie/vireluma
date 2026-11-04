@@ -7,6 +7,25 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-04
+
+Accounts, people management and emergency-code resolution are enabled on the public site as a
+**beta** (owner decision). Legal documents are still pending legal review, the backend runs on the
+Supabase Free plan without backups, and confirmation emails use Supabase's default sender until a
+real email provider is configured.
+
+### Added
+
+- "Create an account" and "Sign in" entry points on the home page; production builds connect to the
+  production backend.
+
+### Changed
+
+- Status banner and FAQ say "beta" instead of "not available yet", in four languages.
+- The production deploy refuses to build without the backend configuration (or with a secret key)
+  and its smoke test also checks the emergency page and the login page.
+- CI retries the local Supabase start once when a runner port is already in use.
+
 ## [0.2.0] - 2026-11-04
 
 Production note: accounts, people management and code resolution ship in the code but stay

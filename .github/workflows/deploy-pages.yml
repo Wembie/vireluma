@@ -24,6 +24,10 @@ env:
   PUBLIC_SITE_ORIGIN: ${{ vars.PUBLIC_SITE_ORIGIN || 'https://wembie.github.io' }}
   PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || '/vireluma' }}
   PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+  # Production Supabase project. Both values are public by design (publishable key, RLS);
+  # never put the secret/service-role key here.
+  PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+  PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
 
 jobs:
   guard:
@@ -49,6 +53,13 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Accounts and the emergency resolver need the backend: never ship a production build
+      # that silently falls back to "not available".
+      - name: Require backend configuration
+        run: |
+          [ -n "$PUBLIC_SUPABASE_URL" ] || { echo "::error::Repository variable SUPABASE_URL is not set"; exit 1; }
+          [ -n "$PUBLIC_SUPABASE_PUBLISHABLE_KEY" ] || { echo "::error::Repository variable SUPABASE_PUBLISHABLE_KEY is not set"; exit 1; }
+          case "$PUBLIC_SUPABASE_PUBLISHABLE_KEY" in sb_secret_*) echo "::error::A secret key must never reach the frontend"; exit 1;; esac
       - run: pnpm check:version
       - run: pnpm test
       - run: pnpm build
@@ -102,7 +113,7 @@ jobs:
           echo "::error::Deployed SHA not observed at ${url}"; exit 1
       - name: Smoke-test key pages
         run: |
-          for path in "" es/ en/ pt/ fr/ es/como-funciona/ sitemap-index.xml; do
+          for path in "" es/ en/ pt/ fr/ es/como-funciona/ sitemap-index.xml p/ es/app/login/; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "${PUBLIC_SITE_ORIGIN}${PUBLIC_BASE_PATH}/${path}")
             echo "${code} /${path}"
             [ "$code" = "200" ] || exit 1

@@ -33,14 +33,14 @@ Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse
       passwords, secure password change) applied with `supabase config push`
 - [ ] `deploy-database` job: migrations to production from `main` with approval — needs Supabase
       access token and DB password as `production` environment secrets
-- [ ] Enable accounts in production builds — **on hold by owner decision (2026-11-04)** until a
-      privacy notice (legal review, Ley 1581) and a real SMTP provider exist
+- [x] Accounts enabled in production builds as a **beta** (owner decision 2026-11-04), before
+      the privacy notice and a real SMTP provider — both remain required before real families
 - [ ] Before real families: paid plan with backups, real SMTP, legal review of region/transfer
 
 Exit: cross-tenant and anonymous access tests pass in CI; no service key outside Supabase;
 accounts work end-to-end on the production project.
 
-## M3 — Core product · **in progress** (tested on local/CI; production accounts on hold)
+## M3 — Core product · **in beta** (code in 0.2.0, enabled in production in 0.2.1)
 
 - [x] Dashboard of people with setup status, codes and last scan
 - [x] Person creation with consent (minor ⇒ guardian confirmation); setup resumes from server data
