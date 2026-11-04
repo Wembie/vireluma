@@ -49,3 +49,20 @@ export function matchRoute(relativePath: string): { locale: Locale; key: RouteKe
 export function alternates(key: RouteKey): { locale: Locale; path: string }[] {
   return LOCALES.map((locale) => ({ locale, path: routePath(locale, key) }));
 }
+
+/** Account area pages (noindex, same slug in every locale — they are not marketing pages). */
+export const APP_PAGES = [
+  'account',
+  'login',
+  'register',
+  'check-email',
+  'forgot-password',
+  'reset-password',
+  'callback',
+] as const;
+
+export type AppPage = (typeof APP_PAGES)[number];
+
+export function appPath(locale: Locale, page: AppPage): string {
+  return page === 'account' ? `${locale}/app/` : `${locale}/app/${page}/`;
+}

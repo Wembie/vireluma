@@ -9,7 +9,11 @@ insert into auth.users (id, email, email_confirmed_at) values
   ('00000000-0000-0000-0000-00000000000c', 'caregiver@example.test', now()),
   ('00000000-0000-0000-0000-00000000000d', 'viewer@example.test', now());
 
-select is((select count(*)::int from public.account_profiles), 4, 'account profiles are created on sign-up');
+select is(
+  (select count(*)::int from public.account_profiles where id::text like '00000000-0000-0000-0000-00000000000_'),
+  4,
+  'account profiles are created on sign-up'
+);
 
 -- ── Owner creates a person ───────────────────────────────────────────────────
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);

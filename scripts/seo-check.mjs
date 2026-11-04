@@ -25,7 +25,7 @@ const trimSlashes = (value) => {
 const trimmedBase = trimSlashes(process.env.PUBLIC_BASE_PATH ?? '/vireluma');
 const basePath = trimmedBase ? `/${trimmedBase}` : '';
 const production = process.env.PUBLIC_APP_ENV === 'production';
-const PRIVATE = /^(p|app|design-system)\/|^404\.html$/;
+const PRIVATE = /^(?:[a-z]{2}\/)?(?:p|app)\/|^design-system\/|^404\.html$/;
 
 const errors = [];
 const error = (file, message) => errors.push(`${file}: ${message}`);

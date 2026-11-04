@@ -3,3 +3,4 @@ export * from './public-id.ts';
 export * from './urls.ts';
 export * from './contrast.ts';
 export * from './permissions.ts';
+export * from './auth.ts';

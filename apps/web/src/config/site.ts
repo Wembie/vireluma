@@ -21,4 +21,9 @@ export const project = {
   repositoryUrl: import.meta.env.PUBLIC_REPOSITORY_URL ?? 'https://github.com/Wembie/vireluma',
 } as const;
 
+/** True when this build talks to a backend (accounts available). */
+export const backend = {
+  configured: Boolean(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY),
+} as const;
+
 export const securityPolicyUrl = `${project.repositoryUrl}/security/policy`;
