@@ -1,0 +1,16 @@
+# Local Git hooks (installed by `pnpm install` via the `prepare` script).
+# CI runs the same checks; hooks only give faster feedback.
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: '*.{ts,tsx,js,mjs,astro,json,md,yml,yaml,css}'
+      run: pnpm exec prettier --check {staged_files}
+    lint:
+      glob: '*.{ts,tsx,js,mjs,astro}'
+      run: pnpm exec eslint {staged_files}
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
