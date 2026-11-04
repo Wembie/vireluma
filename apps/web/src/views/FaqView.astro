@@ -1,0 +1,21 @@
+---
+import type { Locale } from '@vireluma/domain';
+import PageHero from '../components/site/PageHero.astro';
+import Accordion from '../components/ui/Accordion.astro';
+import { getDictionary } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const p = getDictionary(locale).pages.faq;
+---
+
+<PageHero locale={locale} routeKey="faq" eyebrow={p.eyebrow} title={p.h1} intro={p.intro} />
+
+<section class="section" aria-label={p.h1}>
+  <div class="container-page max-w-4xl">
+    <Accordion items={p.items.map((i) => ({ title: i.q, body: i.a }))} headingLevel="h2" />
+  </div>
+</section>

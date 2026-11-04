@@ -1,0 +1,38 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  align?: 'start' | 'center';
+  level?: 'h1' | 'h2';
+  id?: string;
+  tone?: 'default' | 'on-brand';
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  lead,
+  align = 'start',
+  level: H = 'h2',
+  id,
+  tone = 'default',
+  class: className,
+} = Astro.props;
+---
+
+<header class:list={['max-w-3xl', align === 'center' && 'mx-auto text-center', className]}>
+  {eyebrow && <p class:list={['eyebrow', tone === 'on-brand' && '!text-brand-mint']}>{eyebrow}</p>}
+  <H
+    id={id}
+    class:list={['mt-3', H === 'h1' ? 'text-h1' : 'text-h2', tone === 'on-brand' && '!text-fg-on-brand']}
+  >
+    {title}
+  </H>
+  {lead && (
+    <p class:list={['mt-5 text-lg', tone === 'on-brand' ? 'text-fg-on-brand-muted' : 'text-fg-muted']}>
+      {lead}
+    </p>
+  )}
+</header>

@@ -1,0 +1,69 @@
+---
+/**
+ * Button / link-button. Renders <a> when `href` is set, otherwise <button>.
+ * Loading keeps the label for screen readers and sets aria-busy.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { buttonClass, type ButtonSize, type ButtonVariant } from './variants';
+
+type Props = {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  href?: string;
+  external?: boolean;
+  externalLabel?: string;
+  loading?: boolean;
+  disabled?: boolean;
+  fullWidth?: boolean;
+  class?: string;
+} & Omit<HTMLAttributes<'button'>, 'class' | 'disabled'>;
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  external = false,
+  externalLabel,
+  loading = false,
+  disabled = false,
+  fullWidth = false,
+  class: className,
+  type = 'button',
+  ...rest
+} = Astro.props;
+
+const classes = buttonClass(variant, size, [fullWidth ? 'w-full' : '', className].filter(Boolean).join(' '));
+---
+
+{href && !disabled ? (
+  <a
+    href={href}
+    class={classes}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    {...(rest as HTMLAttributes<'a'>)}
+  >
+    <slot name="icon-start" />
+    <slot />
+    <slot name="icon-end" />
+    {external && externalLabel && <span class="sr-only">{externalLabel}</span>}
+  </a>
+) : (
+  <button
+    type={type}
+    class={classes}
+    disabled={disabled || loading}
+    aria-busy={loading ? 'true' : undefined}
+    {...rest}
+  >
+    {loading ? (
+      <span
+        class="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+        aria-hidden="true"
+      />
+    ) : (
+      <slot name="icon-start" />
+    )}
+    <slot />
+    <slot name="icon-end" />
+  </button>
+)}

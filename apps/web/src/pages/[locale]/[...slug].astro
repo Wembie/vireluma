@@ -1,0 +1,60 @@
+---
+/**
+ * Every localized public page, generated statically from the route map.
+ * One component per route key keeps content and URLs decoupled.
+ */
+import type { GetStaticPaths } from 'astro';
+import type { Locale } from '@vireluma/domain';
+import PageLayout from '../../layouts/PageLayout.astro';
+import { LOCALES, ROUTES, ROUTE_KEYS, getDictionary, type RouteKey } from '../../i18n';
+import { breadcrumbs, faqPage, organization, website } from '../../lib/structured-data';
+import FaqView from '../../views/FaqView.astro';
+import HomeView from '../../views/HomeView.astro';
+import HowItWorksView from '../../views/HowItWorksView.astro';
+import QrNfcView from '../../views/QrNfcView.astro';
+import SecurityView from '../../views/SecurityView.astro';
+import UseCasesView from '../../views/UseCasesView.astro';
+
+export const getStaticPaths = (() =>
+  LOCALES.flatMap((locale) =>
+    ROUTE_KEYS.map((key) => ({
+      params: { locale, slug: ROUTES[key][locale] || undefined },
+      props: { locale, routeKey: key },
+    })),
+  )) satisfies GetStaticPaths;
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+}
+
+const { locale, routeKey } = Astro.props;
+const page = getDictionary(locale).pages[routeKey];
+
+const VIEWS = {
+  home: HomeView,
+  howItWorks: HowItWorksView,
+  useCases: UseCasesView,
+  qrNfc: QrNfcView,
+  security: SecurityView,
+  faq: FaqView,
+} as const satisfies Record<RouteKey, unknown>;
+const View = VIEWS[routeKey];
+
+const jsonLd =
+  routeKey === 'home'
+    ? [organization(), website(locale)]
+    : routeKey === 'faq'
+      ? [breadcrumbs(locale, routeKey), faqPage(locale)]
+      : [breadcrumbs(locale, routeKey)];
+---
+
+<PageLayout
+  locale={locale}
+  routeKey={routeKey}
+  title={page.title}
+  description={page.description}
+  jsonLd={jsonLd}
+>
+  <View locale={locale} />
+</PageLayout>

@@ -1,0 +1,44 @@
+---
+/**
+ * Supplementary hint shown on hover AND keyboard focus, dismissible with
+ * Escape (WCAG 1.4.13). Never put essential information only in a tooltip.
+ */
+interface Props {
+  id: string;
+  text: string;
+  class?: string;
+}
+
+const { id, text, class: className } = Astro.props;
+---
+
+<span class:list={['vl-tooltip relative inline-flex', className]} data-tooltip>
+  <slot />
+  <span
+    id={id}
+    role="tooltip"
+    class="pointer-events-none absolute bottom-full left-1/2 z-[var(--vl-z-dropdown)] mb-2 w-max max-w-64 -translate-x-1/2 rounded-sm bg-secondary px-3 py-2 text-sm text-on-secondary opacity-0 shadow-md transition-opacity duration-150"
+  >
+    {text}
+  </span>
+</span>
+
+<style>
+  .vl-tooltip:hover [role='tooltip'],
+  .vl-tooltip:focus-within [role='tooltip'] {
+    opacity: 1;
+  }
+  .vl-tooltip[data-dismissed] [role='tooltip'] {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  for (const el of document.querySelectorAll<HTMLElement>('[data-tooltip]')) {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') el.dataset.dismissed = '';
+    });
+    el.addEventListener('focusout', () => delete el.dataset.dismissed);
+    el.addEventListener('mouseleave', () => delete el.dataset.dismissed);
+  }
+</script>

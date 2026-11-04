@@ -1,0 +1,82 @@
+---
+/**
+ * All per-page SEO metadata. Absolute URLs come from the UrlService only.
+ * `noindex` pages are excluded from search and from the sitemap (see astro.config.ts).
+ */
+import type { Locale } from '@vireluma/domain';
+import { build, urls } from '../../config/site';
+import { HTML_LANG, getDictionary } from '../../i18n';
+
+export interface Alternate {
+  locale: Locale;
+  path: string;
+}
+
+interface Props {
+  locale: Locale | null;
+  title: string;
+  description: string;
+  /** Route path relative to the base path, e.g. `es/como-funciona/`. */
+  path: string;
+  alternates?: Alternate[];
+  /** Path used for hreflang="x-default". */
+  xDefaultPath?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+}
+
+const {
+  locale,
+  title,
+  description,
+  path,
+  alternates = [],
+  xDefaultPath,
+  noindex = false,
+  jsonLd = [],
+} = Astro.props;
+
+const canonical = urls.absolute(path);
+const robots = noindex || !build.indexable ? 'noindex, nofollow' : 'index, follow, max-image-preview:large';
+const ogImage = urls.absoluteAsset('brand/social/social-preview.png');
+const ogLocale = locale ? getDictionary(locale).meta.ogLocale : 'es_CO';
+const ogAlternateLocales = alternates
+  .filter((a) => a.locale !== locale)
+  .map((a) => getDictionary(a.locale).meta.ogLocale);
+
+// Escape `<` so JSON-LD can never break out of its script element.
+const serialize = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={robots} />
+<link rel="canonical" href={canonical} />
+{alternates.map((a) => (
+  <link rel="alternate" hreflang={HTML_LANG[a.locale]} href={urls.absolute(a.path)} />
+))}
+{xDefaultPath !== undefined && (
+  <link rel="alternate" hreflang="x-default" href={urls.absolute(xDefaultPath)} />
+)}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="VIRELUMA" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={ogLocale} />
+{ogAlternateLocales.map((l) => (
+  <meta property="og:locale:alternate" content={l} />
+))}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="VIRELUMA" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{jsonLd.map((data) => (
+  <script type="application/ld+json" set:html={serialize(data)} />
+))}

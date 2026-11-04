@@ -1,0 +1,213 @@
+/*
+ * VIRELUMA design tokens.
+ *
+ * Layer 1 — primitives: raw brand values. Never use them directly in components.
+ * Layer 2 — semantic tokens: what a colour MEANS (surface, text, primary…).
+ *           These switch between light and dark themes.
+ * Layer 3 — Tailwind theme mapping lives in global.css (@theme inline).
+ *
+ * Contrast pairs are verified by apps/web/src/styles/tokens.test.ts (WCAG 2.2 AA).
+ */
+
+:root {
+  /* ── Primitives: brand ─────────────────────────────── */
+  --vl-navy-950: #0b1d2e;
+  --vl-navy-900: #102a43;
+  --vl-navy-800: #1b3a57;
+  --vl-navy-700: #2a4560;
+  --vl-navy-500: #5b7896;
+  --vl-teal-800: #0b5f58;
+  --vl-teal-700: #0f766e;
+  --vl-teal-100: #d5f3ee;
+  --vl-teal-50: #ecfaf7;
+  --vl-mint-300: #8fe1d4;
+  --vl-gold-400: #f4b860;
+  --vl-gold-100: #fdf1dc;
+  --vl-snow: #f7fafc;
+  --vl-white: #ffffff;
+  --vl-ink-900: #172b3a;
+  --vl-slate-500: #64748b;
+  --vl-slate-400: #76869b;
+  --vl-slate-200: #e2e8f0;
+  --vl-slate-100: #eef2f6;
+
+  /* ── Primitives: feedback ──────────────────────────── */
+  --vl-green-700: #15803d;
+  --vl-amber-600: #d97706;
+  --vl-amber-700: #b45309;
+  --vl-red-700: #b91c1c;
+
+  /* ── Typography ────────────────────────────────────── */
+  --vl-font-sans:
+    'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --vl-font-display: 'Manrope Variable', Manrope, var(--vl-font-sans);
+
+  /* Fluid type scale (min at 360px, max at 1280px). Body never drops below 16px. */
+  --vl-text-caption: 0.8125rem;
+  --vl-text-sm: 0.9375rem;
+  --vl-text-base: 1.0625rem;
+  --vl-text-lg: clamp(1.125rem, 1.07rem + 0.25vw, 1.25rem);
+  --vl-text-h4: clamp(1.1875rem, 1.12rem + 0.3vw, 1.375rem);
+  --vl-text-h3: clamp(1.375rem, 1.27rem + 0.45vw, 1.625rem);
+  --vl-text-h2: clamp(1.75rem, 1.5rem + 1.1vw, 2.5rem);
+  --vl-text-h1: clamp(2.125rem, 1.7rem + 1.9vw, 3.5rem);
+  --vl-text-display: clamp(2.5rem, 1.9rem + 2.7vw, 4.5rem);
+
+  /* ── Spacing (4px base) ────────────────────────────── */
+  --vl-space-section: clamp(4rem, 3rem + 4vw, 7.5rem);
+  --vl-gutter: clamp(1rem, 0.6rem + 1.8vw, 2rem);
+  --vl-container: 76rem;
+
+  /* ── Radius ────────────────────────────────────────── */
+  --vl-radius-sm: 0.5rem;
+  --vl-radius-md: 0.75rem;
+  --vl-radius-lg: 1.25rem;
+  --vl-radius-xl: 2rem;
+  --vl-radius-pill: 999px;
+
+  /* ── Motion ────────────────────────────────────────── */
+  --vl-duration-fast: 120ms;
+  --vl-duration-base: 200ms;
+  --vl-duration-slow: 360ms;
+  --vl-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ── Elevation / layers ────────────────────────────── */
+  --vl-z-base: 0;
+  --vl-z-sticky: 20;
+  --vl-z-dropdown: 30;
+  --vl-z-overlay: 40;
+  --vl-z-dialog: 50;
+  --vl-z-toast: 60;
+
+  /* ── Component dimensions ──────────────────────────── */
+  --vl-control-sm: 2.5rem;
+  --vl-control-md: 2.875rem;
+  --vl-control-lg: 3.5rem;
+  /* Minimum touch target (WCAG 2.5.8 asks 24px; we use 44px for older adults). */
+  --vl-touch-min: 2.75rem;
+}
+
+/* ── Semantic tokens: light (default) ─────────────────── */
+:root {
+  color-scheme: light;
+  --vl-bg: var(--vl-snow);
+  --vl-bg-subtle: var(--vl-slate-100);
+  --vl-surface: var(--vl-white);
+  --vl-surface-brand: var(--vl-navy-900);
+  --vl-surface-accent: var(--vl-teal-50);
+  --vl-fg: var(--vl-ink-900);
+  --vl-fg-muted: var(--vl-slate-500);
+  --vl-fg-heading: var(--vl-navy-900);
+  --vl-fg-on-brand: var(--vl-white);
+  --vl-fg-on-brand-muted: #c3d3e2;
+  --vl-primary: var(--vl-teal-700);
+  --vl-primary-hover: var(--vl-teal-800);
+  --vl-primary-soft: var(--vl-teal-100);
+  --vl-on-primary: var(--vl-white);
+  --vl-secondary: var(--vl-navy-900);
+  --vl-secondary-hover: var(--vl-navy-800);
+  --vl-on-secondary: var(--vl-white);
+  --vl-accent: var(--vl-gold-400);
+  --vl-accent-soft: var(--vl-gold-100);
+  --vl-highlight: var(--vl-mint-300);
+  --vl-border: var(--vl-slate-200);
+  --vl-border-strong: var(--vl-slate-400);
+  --vl-focus: var(--vl-teal-700);
+  --vl-success: var(--vl-green-700);
+  --vl-success-soft: #edf8f0;
+  --vl-warning: var(--vl-amber-700);
+  --vl-warning-soft: #fef6ea;
+  --vl-danger: var(--vl-red-700);
+  --vl-danger-soft: #fbe5e5;
+  --vl-info: var(--vl-navy-900);
+  --vl-info-soft: #e5edf5;
+  --vl-disabled-fg: #8794a5;
+  --vl-disabled-bg: var(--vl-slate-100);
+  --vl-shadow-sm: 0 1px 2px rgb(16 42 67 / 0.06), 0 1px 1px rgb(16 42 67 / 0.04);
+  --vl-shadow-md: 0 4px 12px -2px rgb(16 42 67 / 0.08), 0 2px 4px -2px rgb(16 42 67 / 0.05);
+  --vl-shadow-lg: 0 24px 48px -12px rgb(16 42 67 / 0.18), 0 8px 16px -8px rgb(16 42 67 / 0.08);
+}
+
+/* ── Semantic tokens: dark ────────────────────────────── */
+/* Applied when the user picks dark, or when the system is dark and no explicit choice exists. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --vl-bg: var(--vl-navy-950);
+    --vl-bg-subtle: #0e2438;
+    --vl-surface: var(--vl-navy-900);
+    --vl-surface-brand: #071522;
+    --vl-surface-accent: #0f3340;
+    --vl-fg: #e6eef5;
+    --vl-fg-muted: #9fb3c8;
+    --vl-fg-heading: #f3f7fb;
+    --vl-fg-on-brand: #f3f7fb;
+    --vl-fg-on-brand-muted: #a9bccf;
+    --vl-primary: var(--vl-mint-300);
+    --vl-primary-hover: #b3ebe2;
+    --vl-primary-soft: #12423f;
+    --vl-on-primary: var(--vl-navy-950);
+    --vl-secondary: #e6eef5;
+    --vl-secondary-hover: #ffffff;
+    --vl-on-secondary: var(--vl-navy-950);
+    --vl-accent: var(--vl-gold-400);
+    --vl-accent-soft: #3a2f1c;
+    --vl-highlight: var(--vl-mint-300);
+    --vl-border: var(--vl-navy-700);
+    --vl-border-strong: var(--vl-navy-500);
+    --vl-focus: var(--vl-mint-300);
+    --vl-success: #4ade80;
+    --vl-success-soft: #0f3324;
+    --vl-warning: #fbbf24;
+    --vl-warning-soft: #3a2c0c;
+    --vl-danger: #f87171;
+    --vl-danger-soft: #3d1717;
+    --vl-info: #9fc5ea;
+    --vl-info-soft: #13314d;
+    --vl-disabled-fg: #6b829a;
+    --vl-disabled-bg: #15304a;
+    --vl-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --vl-shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.35);
+    --vl-shadow-lg: 0 24px 48px -12px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --vl-bg: var(--vl-navy-950);
+  --vl-bg-subtle: #0e2438;
+  --vl-surface: var(--vl-navy-900);
+  --vl-surface-brand: #071522;
+  --vl-surface-accent: #0f3340;
+  --vl-fg: #e6eef5;
+  --vl-fg-muted: #9fb3c8;
+  --vl-fg-heading: #f3f7fb;
+  --vl-fg-on-brand: #f3f7fb;
+  --vl-fg-on-brand-muted: #a9bccf;
+  --vl-primary: var(--vl-mint-300);
+  --vl-primary-hover: #b3ebe2;
+  --vl-primary-soft: #12423f;
+  --vl-on-primary: var(--vl-navy-950);
+  --vl-secondary: #e6eef5;
+  --vl-secondary-hover: #ffffff;
+  --vl-on-secondary: var(--vl-navy-950);
+  --vl-accent: var(--vl-gold-400);
+  --vl-accent-soft: #3a2f1c;
+  --vl-highlight: var(--vl-mint-300);
+  --vl-border: var(--vl-navy-700);
+  --vl-border-strong: var(--vl-navy-500);
+  --vl-focus: var(--vl-mint-300);
+  --vl-success: #4ade80;
+  --vl-success-soft: #0f3324;
+  --vl-warning: #fbbf24;
+  --vl-warning-soft: #3a2c0c;
+  --vl-danger: #f87171;
+  --vl-danger-soft: #3d1717;
+  --vl-info: #9fc5ea;
+  --vl-info-soft: #13314d;
+  --vl-disabled-fg: #6b829a;
+  --vl-disabled-bg: #15304a;
+  --vl-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --vl-shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.35);
+  --vl-shadow-lg: 0 24px 48px -12px rgb(0 0 0 / 0.5);
+}

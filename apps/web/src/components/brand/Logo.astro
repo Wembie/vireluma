@@ -1,0 +1,91 @@
+---
+/**
+ * Inline VIRELUMA logo. Geometry mirrors scripts/brand/build-logos.mjs.
+ * Inline (not <img>) so the wordmark follows the active theme and needs no request.
+ */
+import wordmark from '../../../../../brand/source/wordmark.json';
+
+interface Props {
+  variant?: 'horizontal' | 'symbol';
+  /** `auto` follows the theme; `on-dark` / `on-light` force a palette. */
+  tone?: 'auto' | 'on-dark' | 'on-light';
+  class?: string;
+  /** Accessible name. Pass `null` when the surrounding link already names it. */
+  label?: string | null;
+}
+
+const { variant = 'horizontal', tone = 'auto', class: className, label = 'VIRELUMA' } = Astro.props;
+
+const bbox = { x: 48, y: 38, w: 160, h: 184 };
+const scale = (bbox.h * 0.4) / wordmark.capHeight;
+const gap = bbox.w * 0.32;
+const wmWidth = wordmark.advanceWidth * scale;
+const wmY = (bbox.h - wordmark.capHeight * scale) / 2 + bbox.h * 0.04;
+const width = variant === 'horizontal' ? bbox.w + gap + wmWidth : bbox.w;
+const d = wordmark.d.replace(/-?\d+\.\d+/g, (n: string) => String(Math.round(Number(n) * 10) / 10));
+const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': 'true' as const };
+---
+
+<svg
+  class:list={['vl-logo', `vl-logo--${tone}`, className]}
+  viewBox={`0 0 ${width.toFixed(2)} ${bbox.h}`}
+  xmlns="http://www.w3.org/2000/svg"
+  focusable="false"
+  {...a11y}
+>
+  <g transform={`translate(${-bbox.x} ${-bbox.y})`}>
+    <path class="vl-logo__left" d="M128 222Q26 176 54 40Q108 124 128 222Z"></path>
+    <path class="vl-logo__right" d="M128 222Q230 176 202 40Q148 124 128 222Z"></path>
+    <circle class="vl-logo__light" cx="128" cy="60" r="22"></circle>
+  </g>
+  {variant === 'horizontal' && (
+    <path
+      class="vl-logo__text"
+      transform={`translate(${(bbox.w + gap).toFixed(2)} ${wmY.toFixed(2)}) scale(${scale.toFixed(5)})`}
+      d={d}
+    />
+  )}
+</svg>
+
+<style>
+  .vl-logo {
+    display: block;
+    height: 100%;
+    width: auto;
+  }
+  .vl-logo__left {
+    fill: var(--vl-navy-900);
+  }
+  .vl-logo__right {
+    fill: var(--vl-teal-700);
+  }
+  .vl-logo__light {
+    fill: var(--vl-gold-400);
+  }
+  .vl-logo__text {
+    fill: var(--vl-navy-900);
+  }
+  .vl-logo--on-dark .vl-logo__left,
+  .vl-logo--on-dark .vl-logo__text {
+    fill: var(--vl-white);
+  }
+  .vl-logo--on-dark .vl-logo__right {
+    fill: var(--vl-mint-300);
+  }
+  :global(:root[data-theme='dark']) .vl-logo--auto .vl-logo__left,
+  :global(:root[data-theme='dark']) .vl-logo--auto .vl-logo__text {
+    fill: #f3f7fb;
+  }
+  :global(:root[data-theme='dark']) .vl-logo--auto .vl-logo__right {
+    fill: var(--vl-mint-300);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .vl-logo--auto .vl-logo__left,
+    :global(:root:not([data-theme='light'])) .vl-logo--auto .vl-logo__text {
+      fill: #f3f7fb;
+    }
+    :global(:root:not([data-theme='light'])) .vl-logo--auto .vl-logo__right {
+      fill: var(--vl-mint-300);
+    }
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+/**
+ * GitHub Pages serves this file for any unknown path under the site. The
+ * requested language is unknown at build time, so the message is shown in all
+ * supported languages. Always noindex.
+ */
+import Logo from '../components/brand/Logo.astro';
+import { urls } from '../config/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { HTML_LANG, LOCALES, getDictionary, routePath } from '../i18n';
+---
+
+<BaseLayout locale="es" title="404 — VIRELUMA" description="404" path="404/" noindex>
+  <main id="main" class="flex flex-1 items-center">
+    <div class="container-page py-16">
+      <a href={urls.path('')} class="inline-block h-10" aria-label="VIRELUMA">
+        <Logo label={null} class="h-10" />
+      </a>
+      <p class="mt-12 font-display text-display font-extrabold text-primary" aria-hidden="true">
+        404
+      </p>
+      <div class="mt-6 grid gap-8 sm:grid-cols-2">
+        {LOCALES.map((l) => {
+          const d = getDictionary(l);
+          return (
+            <section lang={HTML_LANG[l]} class="rounded-lg border border-border bg-surface p-6">
+              <h1 class="text-h4">{d.notFound.title}</h1>
+              <p class="mt-2 text-fg-muted">{d.notFound.body}</p>
+              <a
+                href={urls.path(routePath(l, 'home'))}
+                class="mt-4 inline-flex min-h-[var(--vl-touch-min)] items-center font-semibold"
+              >
+                {d.cta.backHome}
+              </a>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  </main>
+</BaseLayout>

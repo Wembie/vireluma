@@ -1,0 +1,137 @@
+---
+import { CodeXml, Menu, X } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import { project, urls } from '../../config/site';
+import { getDictionary, routePath, type RouteKey } from '../../i18n';
+import Logo from '../brand/Logo.astro';
+import { buttonClass } from '../ui/variants';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+}
+
+const { locale, routeKey } = Astro.props;
+const t = getDictionary(locale);
+
+const links = (['howItWorks', 'useCases', 'qrNfc', 'security', 'faq'] as const).map((key) => ({
+  key,
+  label: t.nav[key],
+  href: urls.path(routePath(locale, key)),
+  current: key === routeKey,
+}));
+---
+
+<a
+  href="#main"
+  class="sr-only-focusable fixed left-4 top-3 z-[var(--vl-z-toast)] rounded-md bg-secondary px-4 py-3 font-semibold text-on-secondary no-underline"
+>
+  {t.a11y.skipToContent}
+</a>
+
+<header class="sticky top-0 z-[var(--vl-z-sticky)] border-b border-border/70 bg-bg/85 backdrop-blur-md supports-[backdrop-filter]:bg-bg/75">
+  <div class="container-page flex h-[4.5rem] items-center justify-between gap-4">
+    <a
+      href={urls.path(routePath(locale, 'home'))}
+      class="h-9 shrink-0 rounded-sm"
+      aria-label={t.a11y.homeLink}
+    >
+      <Logo label={null} class="h-9" />
+    </a>
+
+    <nav aria-label={t.a11y.primaryNav} class="hidden xl:block">
+      <ul class="flex items-center gap-1">
+        {links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              aria-current={l.current ? 'page' : undefined}
+              class="relative flex min-h-[var(--vl-touch-min)] items-center rounded-pill whitespace-nowrap px-3 text-sm font-semibold text-fg no-underline hover:bg-bg-subtle aria-[current=page]:text-primary"
+            >
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1">
+      <div class="hidden items-center gap-1 sm:flex">
+        <LanguageSwitcher locale={locale} routeKey={routeKey} />
+        <ThemeToggle locale={locale} />
+      </div>
+      <div class="ml-2 hidden md:block">
+        <a
+          href={project.repositoryUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={buttonClass('secondary', 'sm')}
+        >
+          <CodeXml class="size-4" aria-hidden="true" />
+          {t.cta.followProject}
+          <span class="sr-only">{t.a11y.opensInNewTab}</span>
+        </a>
+      </div>
+
+      <details class="vl-menu xl:hidden" data-dropdown>
+        <summary
+          class="flex size-11 cursor-pointer list-none items-center justify-center rounded-pill text-fg hover:bg-bg-subtle [&::-webkit-details-marker]:hidden"
+          aria-label={t.nav.menu}
+        >
+          <Menu class="vl-menu__open size-6" aria-hidden="true" />
+          <X class="vl-menu__close size-6" aria-hidden="true" />
+        </summary>
+        <div class="absolute inset-x-0 top-full max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-b border-border bg-bg shadow-lg">
+          <nav aria-label={t.a11y.primaryNav} class="container-page py-4">
+            <ul class="grid gap-1">
+              {links.map((l) => (
+                <li>
+                  <a
+                    href={l.href}
+                    aria-current={l.current ? 'page' : undefined}
+                    class="flex min-h-12 items-center rounded-md px-3 text-lg font-semibold text-fg no-underline hover:bg-bg-subtle aria-[current=page]:bg-primary-soft aria-[current=page]:text-fg"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div class="mt-6 grid gap-6 border-t border-border pt-6 sm:hidden">
+              <LanguageSwitcher locale={locale} routeKey={routeKey} layout="menu" />
+              <ThemeToggle locale={locale} layout="menu" />
+            </div>
+            <a
+              href={project.repositoryUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class={buttonClass('secondary', 'md', 'mt-6 w-full')}
+            >
+              <CodeXml class="size-4" aria-hidden="true" />
+              {t.cta.followProject}
+              <span class="sr-only">{t.a11y.opensInNewTab}</span>
+            </a>
+          </nav>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { initDropdowns } from '../../scripts/disclosure';
+  initDropdowns();
+</script>
+
+<style>
+  .vl-menu__close {
+    display: none;
+  }
+  .vl-menu[open] .vl-menu__open {
+    display: none;
+  }
+  .vl-menu[open] .vl-menu__close {
+    display: block;
+  }
+</style>

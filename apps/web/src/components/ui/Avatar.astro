@@ -1,0 +1,42 @@
+---
+/** Photo or initials. Initials avatars are decorative when the name is shown next to them. */
+interface Props {
+  name: string;
+  src?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  decorative?: boolean;
+  class?: string;
+}
+
+const { name, src, size = 'md', decorative = false, class: className } = Astro.props;
+const initials = name
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((p) => p[0]?.toUpperCase())
+  .join('');
+const sizes = { sm: 'size-8 text-xs', md: 'size-11 text-sm', lg: 'size-14 text-lg', xl: 'size-20 text-2xl' };
+---
+
+{src ? (
+  <img
+    src={src}
+    alt={decorative ? '' : name}
+    class:list={['shrink-0 rounded-full object-cover', sizes[size], className]}
+    loading="lazy"
+    decoding="async"
+  />
+) : (
+  <span
+    class:list={[
+      'inline-flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-display font-bold text-fg',
+      sizes[size],
+      className,
+    ]}
+    role={decorative ? undefined : 'img'}
+    aria-label={decorative ? undefined : name}
+    aria-hidden={decorative ? 'true' : undefined}
+  >
+    {initials}
+  </span>
+)}

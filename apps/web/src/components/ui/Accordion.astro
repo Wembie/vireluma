@@ -1,0 +1,37 @@
+---
+/**
+ * Disclosure list built on native <details>/<summary>: keyboard, screen-reader
+ * and no-JS support for free, and content stays findable with in-page search.
+ */
+import { Plus } from '@lucide/astro';
+
+interface Props {
+  items: { title: string; body: string }[];
+  headingLevel?: 'h2' | 'h3' | 'h4';
+  class?: string;
+}
+
+const { items, headingLevel: H = 'h3', class: className } = Astro.props;
+---
+
+<div class:list={['divide-y divide-border border-y border-border', className]}>
+  {items.map((item) => (
+    <details class="group vl-accordion">
+      <summary class="flex min-h-[var(--vl-touch-min)] cursor-pointer list-none items-center justify-between gap-4 py-5 text-left [&::-webkit-details-marker]:hidden">
+        <H class="font-display text-h4 font-bold text-fg-heading">{item.title}</H>
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-bg-subtle text-primary transition-transform duration-200 group-open:rotate-45">
+          <Plus class="size-5" aria-hidden="true" />
+        </span>
+      </summary>
+      <div class="max-w-[68ch] pb-6 text-fg-muted">
+        <p>{item.body}</p>
+      </div>
+    </details>
+  ))}
+</div>
+
+<style>
+  .vl-accordion summary:focus-visible {
+    outline-offset: 2px;
+  }
+</style>

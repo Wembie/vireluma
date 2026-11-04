@@ -1,0 +1,493 @@
+---
+/**
+ * Living design-system reference. Internal tool: noindex, excluded from the
+ * sitemap and robots, English only. Every component is rendered from the real
+ * implementation — nothing here is a screenshot.
+ */
+import { Bell, Pencil, Plus, Trash } from '@lucide/astro';
+import Logo from '../../components/brand/Logo.astro';
+import Accordion from '../../components/ui/Accordion.astro';
+import Alert from '../../components/ui/Alert.astro';
+import Avatar from '../../components/ui/Avatar.astro';
+import Badge from '../../components/ui/Badge.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import Card from '../../components/ui/Card.astro';
+import Checkbox from '../../components/ui/Checkbox.astro';
+import Dialog from '../../components/ui/Dialog.astro';
+import FormField from '../../components/ui/FormField.astro';
+import IconButton from '../../components/ui/IconButton.astro';
+import Input from '../../components/ui/Input.astro';
+import Progress from '../../components/ui/Progress.astro';
+import RadioGroup from '../../components/ui/RadioGroup.astro';
+import Select from '../../components/ui/Select.astro';
+import StateView from '../../components/ui/StateView.astro';
+import Stepper from '../../components/ui/Stepper.astro';
+import Switch from '../../components/ui/Switch.astro';
+import Textarea from '../../components/ui/Textarea.astro';
+import Tooltip from '../../components/ui/Tooltip.astro';
+import { Tabs } from '../../components/ui/react/Tabs';
+import { ToastDemo } from '../../components/ui/react/Toast';
+import ThemeToggle from '../../components/site/ThemeToggle.astro';
+import { urls } from '../../config/site';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const palette = [
+  { name: 'Deep Navy', hex: '#102A43', use: 'Brand surfaces, headings' },
+  { name: 'Primary Teal', hex: '#0F766E', use: 'Actions, links, active' },
+  { name: 'Soft Mint', hex: '#8FE1D4', use: 'Accents on navy, dark-mode primary' },
+  { name: 'Warm Gold', hex: '#F4B860', use: 'The light — small highlights only' },
+  { name: 'Snow', hex: '#F7FAFC', use: 'Light background' },
+];
+const semantic = [
+  'bg',
+  'surface',
+  'surface-accent',
+  'primary',
+  'secondary',
+  'success',
+  'warning',
+  'danger',
+  'info',
+  'border-strong',
+];
+const typeScale = [
+  ['Display', 'text-display font-display font-extrabold'],
+  ['H1', 'text-h1 font-display font-bold'],
+  ['H2', 'text-h2 font-display font-bold'],
+  ['H3', 'text-h3 font-display font-bold'],
+  ['H4', 'text-h4 font-display font-bold'],
+  ['Body large', 'text-lg'],
+  ['Body', 'text-base'],
+  ['Body small', 'text-sm'],
+  ['Caption', 'text-caption text-fg-muted'],
+] as const;
+const sections = [
+  'Brand',
+  'Colour',
+  'Typography',
+  'Buttons',
+  'Feedback',
+  'Forms',
+  'Data display',
+  'Navigation',
+  'Overlays',
+  'States',
+];
+const slug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
+---
+
+<BaseLayout
+  locale="en"
+  title="Design system — VIRELUMA"
+  description="VIRELUMA design system reference."
+  path="design-system/"
+  noindex
+>
+  <a
+    href="#main"
+    class="sr-only-focusable fixed top-3 left-4 z-[var(--vl-z-toast)] rounded-md bg-secondary px-4 py-3 font-semibold text-on-secondary"
+  >
+    Skip to content
+  </a>
+  <header class="sticky top-0 z-[var(--vl-z-sticky)] border-b border-border bg-bg/90 backdrop-blur">
+    <div class="container-page flex h-16 items-center justify-between gap-4">
+      <a href={urls.path('')} class="h-8" aria-label="VIRELUMA home">
+        <Logo label={null} class="h-8" />
+      </a>
+      <div class="flex items-center gap-2">
+        <Badge tone="primary" size="sm">
+          Design system · v0.1
+        </Badge>
+        <ThemeToggle locale="en" />
+      </div>
+    </div>
+  </header>
+
+  <div class="container-page grid gap-10 py-10 lg:grid-cols-[12rem_1fr]">
+    <nav aria-label="Design system sections" class="lg:sticky lg:top-24 lg:self-start">
+      <ul class="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
+        {sections.map((s) => (
+          <li>
+            <a
+              href={`#${slug(s)}`}
+              class="inline-flex min-h-10 items-center rounded-sm px-2 text-sm font-medium text-fg no-underline hover:bg-bg-subtle"
+            >
+              {s}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <main id="main" tabindex="-1" class="grid min-w-0 gap-20 focus:outline-none">
+      <header>
+        <p class="eyebrow">VIRELUMA</p>
+        <h1 class="mt-3 text-h1">Design system</h1>
+        <p class="mt-4 max-w-2xl text-lg text-fg-muted">
+          Tokens and components for every VIRELUMA surface. Switch the theme to review both modes. Usage rules
+          live in docs/product/design-system.md.
+        </p>
+      </header>
+
+      <section aria-labelledby="brand" class="grid gap-6">
+        <h2 id="brand" class="text-h2">
+          Brand
+        </h2>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <Card class="flex h-40 items-center justify-center">
+            <div class="h-12">
+              <Logo class="h-12" />
+            </div>
+          </Card>
+          <Card variant="brand" class="flex h-40 items-center justify-center">
+            <div class="h-12">
+              <Logo tone="on-dark" class="h-12" />
+            </div>
+          </Card>
+          <Card class="flex h-40 items-center justify-center gap-6">
+            <div class="h-16">
+              <Logo variant="symbol" class="h-16" />
+            </div>
+            <img src={urls.asset('brand/icons/favicon.svg')} alt="Favicon" width="48" height="48" />
+            <img
+              src={urls.asset('brand/icons/favicon.svg')}
+              alt="Favicon at 16 pixels"
+              width="16"
+              height="16"
+            />
+          </Card>
+        </div>
+      </section>
+
+      <section aria-labelledby="colour" class="grid gap-6">
+        <h2 id="colour" class="text-h2">
+          Colour
+        </h2>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {palette.map((c) => (
+            <li class="overflow-hidden rounded-md border border-border bg-surface">
+              <div class="h-20" style={`background:${c.hex}`}></div>
+              <div class="p-3 text-sm">
+                <p class="font-semibold">{c.name}</p>
+                <p class="font-mono text-fg-muted">{c.hex}</p>
+                <p class="mt-1 text-fg-muted">{c.use}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <h3 class="text-h4">Semantic tokens (theme-aware)</h3>
+        <ul class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {semantic.map((s) => (
+            <li class="rounded-md border border-border bg-surface p-2 text-sm">
+              <div class="h-10 rounded-sm border border-border" style={`background:var(--vl-${s})`}></div>
+              <p class="mt-2 font-mono text-caption">--vl-{s}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="typography" class="grid gap-6">
+        <h2 id="typography" class="text-h2">
+          Typography
+        </h2>
+        <p class="text-fg-muted">
+          Manrope for display and headings, Inter for interface and reading. Both self-hosted, variable, with
+          Latin Extended for es/pt/fr.
+        </p>
+        <ul class="grid gap-4">
+          {typeScale.map(([name, cls]) => (
+            <li class="grid gap-1 border-b border-border pb-4 sm:grid-cols-[8rem_1fr] sm:items-baseline">
+              <span class="font-mono text-caption text-fg-muted">{name}</span>
+              <span class={`${cls} text-fg-heading`}>Cada vida · Ação · Sécurité</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="buttons" class="grid gap-6">
+        <h2 id="buttons" class="text-h2">
+          Buttons
+        </h2>
+        <div class="flex flex-wrap items-center gap-3">
+          <Button>Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="danger">Delete</Button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <Button size="sm">Small</Button>
+          <Button>Medium</Button>
+          <Button size="lg">Large</Button>
+          <Button loading>Saving</Button>
+          <Button disabled>Disabled</Button>
+          <Button>
+            <Plus slot="icon-start" class="size-5" aria-hidden="true" />
+            With icon
+          </Button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <IconButton label="Edit">
+            <Pencil class="size-5" aria-hidden="true" />
+          </IconButton>
+          <IconButton label="Notifications" variant="outline">
+            <Bell class="size-5" aria-hidden="true" />
+          </IconButton>
+          <IconButton label="Add person" variant="primary">
+            <Plus class="size-5" aria-hidden="true" />
+          </IconButton>
+          <IconButton label="Delete" disabled>
+            <Trash class="size-5" aria-hidden="true" />
+          </IconButton>
+        </div>
+        <Card variant="brand" class="flex flex-wrap gap-3">
+          <Button variant="inverse">Inverse on navy</Button>
+        </Card>
+      </section>
+
+      <section aria-labelledby="feedback" class="grid gap-6">
+        <h2 id="feedback" class="text-h2">
+          Feedback
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          <Badge>Neutral</Badge>
+          <Badge tone="primary">Primary</Badge>
+          <Badge tone="success" dot>
+            Active
+          </Badge>
+          <Badge tone="warning" dot>
+            Pending
+          </Badge>
+          <Badge tone="danger" dot>
+            Revoked
+          </Badge>
+          <Badge tone="info">Info</Badge>
+          <Badge tone="accent" dot>
+            In development
+          </Badge>
+        </div>
+        <div class="grid gap-3">
+          <Alert tone="info" title="Information">
+            The QR destination never changes when you edit a profile.
+          </Alert>
+          <Alert tone="success" title="Saved">
+            Emergency contacts updated.
+          </Alert>
+          <Alert tone="warning" title="Review needed">
+            This emergency number has not been verified for your country.
+          </Alert>
+          <Alert tone="danger" title="Code revoked">
+            This code no longer opens a profile.
+          </Alert>
+        </div>
+        <div>
+          <ToastDemo
+            client:visible
+            triggerLabel="Show toast"
+            dismissLabel="Dismiss"
+            messages={[
+              { tone: 'success', text: 'Profile saved.' },
+              { tone: 'info', text: 'Invitation sent to Daniel.' },
+              { tone: 'danger', text: 'Connection lost. Changes not saved.' },
+            ]}
+          />
+        </div>
+        <div class="grid max-w-md gap-4">
+          <Progress label="Profile completion" value={70} />
+          <Progress label="Uploading photo" />
+        </div>
+      </section>
+
+      <section aria-labelledby="forms" class="grid gap-6">
+        <h2 id="forms" class="text-h2">
+          Forms
+        </h2>
+        <form class="grid max-w-xl gap-6" onsubmit="return false">
+          <FormField
+            id="ds-name"
+            label="Preferred name"
+            hint="How a helper should address the person."
+            required
+          >
+            <Input id="ds-name" hint required autocomplete="off" placeholder="Elena" />
+          </FormField>
+          <FormField
+            id="ds-phone"
+            label="Contact phone"
+            error="Enter a phone number with country code, e.g. +57 300 123 4567."
+          >
+            <Input id="ds-phone" error type="tel" value="300" inputmode="tel" />
+          </FormField>
+          <FormField id="ds-msg" label="Emergency message">
+            <Textarea id="ds-msg" placeholder="Please stay with me and call my family." />
+          </FormField>
+          <FormField id="ds-lang" label="Preferred language">
+            <Select
+              id="ds-lang"
+              value="es"
+              options={[
+                { value: 'es', label: 'Español' },
+                { value: 'en', label: 'English' },
+                { value: 'pt', label: 'Português' },
+                { value: 'fr', label: 'Français' },
+              ]}
+            />
+          </FormField>
+          <FormField id="ds-disabled" label="Disabled field">
+            <Input id="ds-disabled" disabled value="Not editable" />
+          </FormField>
+          <RadioGroup
+            name="ds-visibility"
+            legend="Who can see allergies?"
+            layout="cards"
+            value="emergency"
+            options={[
+              {
+                value: 'emergency',
+                label: 'Anyone who scans in an emergency',
+                description: 'Shown on the public emergency page.',
+              },
+              {
+                value: 'protected',
+                label: 'Protected',
+                description: 'Requires an additional authorization step.',
+              },
+              { value: 'private', label: 'Family only', description: 'Only authorised family members.' },
+            ]}
+          />
+          <Checkbox
+            id="ds-consent"
+            label="I am the parent or legal guardian"
+            description="Required to create a profile for a minor."
+          />
+          <Switch
+            id="ds-switch"
+            label="Show photo on emergency page"
+            description="You can change this at any time."
+            checked
+          />
+        </form>
+      </section>
+
+      <section aria-labelledby="data-display" class="grid gap-6">
+        <h2 id="data-display" class="text-h2">
+          Data display
+        </h2>
+        <div class="flex items-center gap-3">
+          <Avatar name="Elena Ruiz" size="sm" />
+          <Avatar name="Elena Ruiz" />
+          <Avatar name="María Gómez" size="lg" />
+          <Avatar name="Daniel" size="xl" />
+        </div>
+        <div class="grid gap-4 md:grid-cols-3">
+          <Card>
+            <p class="font-semibold">Default card</p>
+            <p class="mt-1 text-fg-muted">Surface with border.</p>
+          </Card>
+          <Card variant="subtle">
+            <p class="font-semibold">Subtle card</p>
+            <p class="mt-1 text-fg">Use full-contrast text on tinted surfaces.</p>
+          </Card>
+          <Card variant="accent" interactive>
+            <a href="#data-display" class="font-semibold after:absolute after:inset-0">
+              Interactive card
+            </a>
+            <p class="mt-1 text-fg">Whole card is the link target.</p>
+          </Card>
+        </div>
+        <Accordion
+          items={[
+            { title: 'Accordion item', body: 'Built on native details/summary.' },
+            { title: 'Second item', body: 'Works without JavaScript.' },
+          ]}
+        />
+      </section>
+
+      <section aria-labelledby="navigation" class="grid gap-6">
+        <h2 id="navigation" class="text-h2">
+          Navigation
+        </h2>
+        <Breadcrumbs
+          label="Breadcrumb example"
+          items={[
+            { label: 'People', href: '#navigation' },
+            { label: 'Elena', href: '#navigation' },
+            { label: 'Emergency contacts' },
+          ]}
+        />
+        <Stepper
+          label="Profile wizard progress"
+          current={2}
+          steps={['Who', 'Basics', 'Contacts', 'Emergency info', 'Privacy', 'QR', 'Review']}
+        />
+        <Tabs
+          client:visible
+          label="Profile sections"
+          items={[
+            { id: 'public', label: 'Public', content: 'Information shown to anyone who scans the code.' },
+            {
+              id: 'protected',
+              label: 'Protected',
+              content: 'Information behind an additional authorization step.',
+            },
+            { id: 'private', label: 'Private', content: 'Information only family members can see.' },
+          ]}
+        />
+      </section>
+
+      <section aria-labelledby="overlays" class="grid gap-6">
+        <h2 id="overlays" class="text-h2">
+          Overlays
+        </h2>
+        <div class="flex flex-wrap items-center gap-4">
+          <Button data-dialog-open="ds-dialog" variant="outline">
+            Open dialog
+          </Button>
+          <Tooltip id="ds-tip" text="Revoking keeps the person's profile; only this code stops working.">
+            <Button variant="ghost" aria-describedby="ds-tip">
+              What does revoke mean?
+            </Button>
+          </Tooltip>
+        </div>
+        <Dialog
+          id="ds-dialog"
+          title="Revoke this code?"
+          closeLabel="Close"
+          description="Printed wristbands with this code will stop opening the profile. You can issue a new code afterwards."
+        >
+          <p class="text-sm text-fg-muted">This action is recorded in the audit history.</p>
+          <Fragment slot="actions">
+            <Button variant="outline" data-dialog-close>
+              Cancel
+            </Button>
+            <Button variant="danger" data-dialog-close>
+              Revoke code
+            </Button>
+          </Fragment>
+        </Dialog>
+      </section>
+
+      <section aria-labelledby="states" class="grid gap-6">
+        <h2 id="states" class="text-h2">
+          States
+        </h2>
+        <div class="grid gap-4 md:grid-cols-3">
+          <StateView kind="empty" title="No people yet" body="Add the first person you want to protect.">
+            <Button size="sm">Add person</Button>
+          </StateView>
+          <StateView kind="loading" title="Loading profile…" />
+          <StateView
+            kind="error"
+            title="We couldn't load this profile"
+            body="Check your connection and try again."
+          >
+            <Button size="sm" variant="outline">
+              Try again
+            </Button>
+          </StateView>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>

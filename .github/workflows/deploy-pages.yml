@@ -1,0 +1,109 @@
+# Production deployment to GitHub Pages — ONLY from `main` (PRD).
+# `dev` is never deployed: GitHub Pages hosts a single site per repository.
+#
+# One-time owner setup (see docs/deployment/github-pages.md):
+#   Settings → Pages → Source: "GitHub Actions"
+#   Settings → Environments → github-pages → Deployment branches: main only
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never cancel an in-flight production deployment; queue the next one.
+concurrency:
+  group: pages-production
+  cancel-in-progress: false
+
+env:
+  PUBLIC_APP_ENV: production
+  PUBLIC_SITE_ORIGIN: ${{ vars.PUBLIC_SITE_ORIGIN || 'https://wembie.github.io' }}
+  PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || '/vireluma' }}
+  PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+
+jobs:
+  guard:
+    name: Refuse non-main refs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure workflow runs on main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Production deploys are only allowed from main (got ${GITHUB_REF})."
+          exit 1
+
+  build:
+    name: Build production site
+    needs: guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:version
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm check:seo
+      - run: pnpm check:bundle
+      - name: Verify build metadata
+        run: |
+          node -e "
+            const v = require('./apps/web/dist/version.json');
+            if (v.sha !== process.env.GITHUB_SHA) { console.error('SHA mismatch', v); process.exit(1); }
+            if (v.environment !== 'production') { console.error('Not a production build', v); process.exit(1); }
+            console.log('Build', v.version, v.sha);
+          "
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist/
+          retention-days: 30
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  verify:
+    name: Verify live deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for the deployed SHA to be served
+        run: |
+          url="${PUBLIC_SITE_ORIGIN}${PUBLIC_BASE_PATH}/version.json"
+          for attempt in $(seq 1 20); do
+            body=$(curl -fsSL -H 'Cache-Control: no-cache' "${url}?t=$(date +%s)" || true)
+            if echo "$body" | grep -q "\"sha\": \"${GITHUB_SHA}\""; then
+              echo "Live site serves ${GITHUB_SHA}"; echo "$body"; exit 0
+            fi
+            echo "Attempt ${attempt}: not live yet"; sleep 15
+          done
+          echo "::error::Deployed SHA not observed at ${url}"; exit 1
+      - name: Smoke-test key pages
+        run: |
+          for path in "" es/ en/ pt/ fr/ es/como-funciona/ sitemap-index.xml; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${PUBLIC_SITE_ORIGIN}${PUBLIC_BASE_PATH}/${path}")
+            echo "${code} /${path}"
+            [ "$code" = "200" ] || exit 1
+          done

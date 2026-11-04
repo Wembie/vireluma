@@ -1,0 +1,39 @@
+---
+/** Surface container. `interactive` adds hover elevation for cards that contain a single primary link. */
+interface Props {
+  as?: 'div' | 'article' | 'section' | 'li';
+  variant?: 'default' | 'subtle' | 'accent' | 'brand';
+  padding?: 'sm' | 'md' | 'lg';
+  interactive?: boolean;
+  class?: string;
+}
+
+const {
+  as: Tag = 'div',
+  variant = 'default',
+  padding = 'md',
+  interactive = false,
+  class: className,
+} = Astro.props;
+
+const variants = {
+  default: 'bg-surface border border-border shadow-sm',
+  subtle: 'bg-bg-subtle',
+  accent: 'bg-surface-accent',
+  brand: 'bg-surface-brand text-fg-on-brand',
+};
+const paddings = { sm: 'p-4', md: 'p-6 sm:p-7', lg: 'p-7 sm:p-10' };
+---
+
+<Tag
+  class:list={[
+    'relative rounded-lg',
+    variants[variant],
+    paddings[padding],
+    interactive &&
+      'transition-[box-shadow,transform,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md focus-within:shadow-md',
+    className,
+  ]}
+>
+  <slot />
+</Tag>

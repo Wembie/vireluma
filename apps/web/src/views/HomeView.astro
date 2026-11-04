@@ -1,0 +1,326 @@
+---
+import {
+  Accessibility,
+  ArrowRight,
+  Baby,
+  Brain,
+  Check,
+  CodeXml,
+  CreditCard,
+  EyeOff,
+  Layers,
+  Nfc,
+  QrCode,
+  RefreshCw,
+  ScanLine,
+  SearchX,
+  Sticker,
+  UserRound,
+  Watch,
+} from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import EmergencyPreview from '../components/marketing/EmergencyPreview.astro';
+import Wristband from '../components/marketing/Wristband.astro';
+import Accordion from '../components/ui/Accordion.astro';
+import Badge from '../components/ui/Badge.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import { project, urls } from '../config/site';
+import { getDictionary, routePath } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDictionary(locale);
+const p = t.pages.home;
+const href = (key: Parameters<typeof routePath>[1]) => urls.path(routePath(locale, key));
+
+const stepIcons = [UserRound, Watch, ScanLine];
+const audienceIcons = [UserRound, Brain, Baby, Accessibility];
+const privacyIcons = [QrCode, Layers, SearchX, RefreshCw];
+const compatIcons = [QrCode, Nfc, Sticker, CreditCard];
+---
+
+<!-- Hero -->
+<section class="relative overflow-hidden" aria-labelledby="hero-title">
+  <div class="vl-hero-glow" aria-hidden="true"></div>
+  <div class="container-page relative grid items-center gap-14 pt-12 pb-20 sm:pt-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:pt-20 lg:pb-28">
+    <div>
+      <Badge tone="accent" dot>
+        {t.status.label}
+      </Badge>
+      <p class="eyebrow mt-6">{p.hero.eyebrow}</p>
+      <h1 id="hero-title" class="mt-4 max-w-[14ch] text-display">
+        {p.hero.title}
+      </h1>
+      <p class="mt-6 max-w-xl text-lg text-fg-muted">{p.hero.lead}</p>
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <Button href={href('howItWorks')} size="lg">
+          {t.cta.howItWorks}
+          <ArrowRight slot="icon-end" class="size-5" aria-hidden="true" />
+        </Button>
+        <Button
+          href={project.repositoryUrl}
+          external
+          externalLabel={t.a11y.opensInNewTab}
+          variant="outline"
+          size="lg"
+        >
+          <CodeXml slot="icon-start" class="size-5" aria-hidden="true" />
+          {t.cta.followProject}
+        </Button>
+      </div>
+      <ul class="mt-10 grid gap-3">
+        {p.hero.points.map((point) => (
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <Check class="size-4" aria-hidden="true" />
+            </span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="mt-8 max-w-xl border-l-2 border-accent pl-4 text-sm text-fg-muted">{t.status.message}</p>
+    </div>
+
+    <div class="relative mx-auto flex w-full max-w-[30rem] flex-col items-center sm:block sm:pb-10">
+      <div class="vl-hero-ring" aria-hidden="true"></div>
+      <Wristband locale={locale} class="vl-hero-band" />
+      <EmergencyPreview locale={locale} class="relative z-10 order-1 sm:mr-0 sm:ml-auto" />
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section bg-surface" aria-labelledby="how-title">
+  <div class="container-page">
+    <SectionHeader id="how-title" eyebrow={p.how.eyebrow} title={p.how.title} align="center" />
+    <ol class="mt-14 grid gap-6 md:grid-cols-3">
+      {p.how.steps.map((step, i) => {
+        const Icon = stepIcons[i] ?? ScanLine;
+        return (
+          <li class="relative rounded-lg border border-border bg-bg p-7">
+            <div class="flex items-center justify-between">
+              <span class="flex size-12 items-center justify-center rounded-md bg-surface-brand text-brand-mint">
+                <Icon class="size-6" aria-hidden="true" />
+              </span>
+              <span class="font-display text-h3 font-extrabold text-fg-muted" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+            </div>
+            <h3 class="mt-6 text-h4">{step.title}</h3>
+            <p class="mt-2 text-fg-muted">{step.body}</p>
+          </li>
+        );
+      })}
+    </ol>
+    <div class="mt-10 text-center">
+      <Button href={href('howItWorks')} variant="ghost">
+        {t.cta.learnMore}
+        <ArrowRight slot="icon-end" class="size-4" aria-hidden="true" />
+      </Button>
+    </div>
+  </div>
+</section>
+
+<!-- Audiences -->
+<section class="section" aria-labelledby="audiences-title">
+  <div class="container-page">
+    <SectionHeader id="audiences-title" eyebrow={p.audiences.eyebrow} title={p.audiences.title} />
+    <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {p.audiences.items.map((item, i) => {
+        const Icon = audienceIcons[i] ?? UserRound;
+        return (
+          <li>
+            <Card class="h-full">
+              <Icon class="size-7 text-primary" aria-hidden="true" />
+              <h3 class="mt-5 text-h4">{item.title}</h3>
+              <p class="mt-2 text-fg-muted">{item.body}</p>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+    <div class="mt-8">
+      <a
+        href={href('useCases')}
+        class="inline-flex min-h-[var(--vl-touch-min)] items-center gap-2 font-semibold"
+      >
+        {t.nav.useCases}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section class="section bg-surface-brand text-fg-on-brand" aria-labelledby="privacy-title">
+  <div class="container-page grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+    <div>
+      <SectionHeader
+        id="privacy-title"
+        eyebrow={p.privacy.eyebrow}
+        title={p.privacy.title}
+        lead={p.privacy.body}
+        tone="on-brand"
+      />
+      <div class="mt-8">
+        <Button href={href('security')} variant="inverse">
+          {t.nav.security}
+          <ArrowRight slot="icon-end" class="size-4" aria-hidden="true" />
+        </Button>
+      </div>
+    </div>
+    <ul class="grid gap-4 sm:grid-cols-2">
+      {p.privacy.points.map((point, i) => {
+        const Icon = privacyIcons[i] ?? EyeOff;
+        return (
+          <li class="rounded-lg border border-white/10 bg-white/[0.04] p-6">
+            <Icon class="size-6 text-brand-mint" aria-hidden="true" />
+            <h3 class="mt-4 text-h4 !text-fg-on-brand">{point.title}</h3>
+            <p class="mt-2 text-fg-on-brand-muted">{point.body}</p>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<!-- Compatibility -->
+<section class="section" aria-labelledby="compat-title">
+  <div class="container-page grid items-center gap-12 lg:grid-cols-2">
+    <div>
+      <SectionHeader
+        id="compat-title"
+        eyebrow={p.compatibility.eyebrow}
+        title={p.compatibility.title}
+        lead={p.compatibility.body}
+      />
+      <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+        {p.compatibility.items.map((item, i) => {
+          const Icon = compatIcons[i] ?? QrCode;
+          return (
+            <li class="flex min-h-14 items-center gap-3 rounded-md border border-border bg-surface px-4 font-medium">
+              <Icon class="size-5 shrink-0 text-primary" aria-hidden="true" />
+              {item}
+            </li>
+          );
+        })}
+      </ul>
+      <p class="mt-6 text-sm text-fg-muted">{p.compatibility.note}</p>
+      <a
+        href={href('qrNfc')}
+        class="mt-4 inline-flex min-h-[var(--vl-touch-min)] items-center gap-2 font-semibold"
+      >
+        {t.nav.qrNfc}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </div>
+    <div class="flex flex-col items-center gap-4 rounded-xl bg-surface-accent px-6 py-14">
+      <Wristband locale={locale} class="max-w-sm" />
+      <p class="max-w-xs text-center text-sm text-fg">{t.sample.scanHint}</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section bg-surface" aria-labelledby="faq-title">
+  <div class="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+    <div>
+      <SectionHeader id="faq-title" eyebrow={p.faq.eyebrow} title={p.faq.title} />
+      <div class="mt-8">
+        <Button href={href('faq')} variant="outline">
+          {t.cta.readFaq}
+        </Button>
+      </div>
+    </div>
+    <Accordion
+      items={t.pages.faq.items.slice(0, 4).map((i) => ({ title: i.q, body: i.a }))}
+      headingLevel="h3"
+    />
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="section" aria-labelledby="final-title">
+  <div class="container-page">
+    <div class="relative overflow-hidden rounded-xl bg-surface-brand px-6 py-14 text-center sm:px-12 sm:py-20">
+      <div class="vl-final-glow" aria-hidden="true"></div>
+      <h2 id="final-title" class="relative mx-auto max-w-2xl text-h2 !text-fg-on-brand">
+        {p.final.title}
+      </h2>
+      <p class="relative mx-auto mt-4 max-w-xl text-lg text-fg-on-brand-muted">{p.final.body}</p>
+      <div class="relative mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+        <Button
+          href={project.repositoryUrl}
+          external
+          externalLabel={t.a11y.opensInNewTab}
+          variant="inverse"
+          size="lg"
+        >
+          <CodeXml slot="icon-start" class="size-5" aria-hidden="true" />
+          {t.cta.followProject}
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .vl-hero-glow {
+    position: absolute;
+    inset: -20% -10% auto auto;
+    width: 60rem;
+    height: 60rem;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--vl-mint-300) 28%, transparent),
+      transparent
+    );
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .vl-hero-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30rem;
+    height: 30rem;
+    translate: -40% -50%;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--vl-primary) 22%, transparent);
+    box-shadow: 0 0 0 3.5rem color-mix(in srgb, var(--vl-primary) 4%, transparent);
+    pointer-events: none;
+  }
+  /* The wristband sits behind the phone and peeks out at the bottom-left, so it never hides text. */
+  :global(.vl-hero-band) {
+    order: 2;
+    width: min(19rem, 92%) !important;
+    margin-top: -0.5rem;
+    rotate: -4deg;
+  }
+  @media (min-width: 640px) {
+    :global(.vl-hero-band) {
+      position: absolute !important;
+      left: -1rem;
+      bottom: 2.5rem;
+      width: 15rem !important;
+      margin-top: 0;
+      rotate: -10deg;
+      z-index: 0;
+    }
+  }
+  .vl-final-glow {
+    position: absolute;
+    inset: auto auto -40% -10%;
+    width: 36rem;
+    height: 36rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(143 225 212 / 0.16), transparent);
+    pointer-events: none;
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { FIELD_CONTROL } from './variants';
+
+type Props = {
+  id: string;
+  hint?: boolean;
+  error?: boolean;
+  class?: string;
+} & Omit<HTMLAttributes<'textarea'>, 'class'>;
+
+const { id, hint = false, error = false, class: className, rows = 4, ...rest } = Astro.props;
+const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
+---
+
+<textarea
+  id={id}
+  rows={rows}
+  class:list={[FIELD_CONTROL, 'min-h-28 py-3 leading-relaxed', className]}
+  aria-describedby={describedBy}
+  aria-invalid={error ? 'true' : undefined}
+  {...rest}
+><slot /></textarea>

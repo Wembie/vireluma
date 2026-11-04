@@ -1,0 +1,75 @@
+---
+/**
+ * Product render of a VIRELUMA wristband built from real assets: the brand
+ * mark and a scannable QR that points to the "How it works" page.
+ */
+import { Nfc } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import { urls } from '../../config/site';
+import { getDictionary, routePath } from '../../i18n';
+import Logo from '../brand/Logo.astro';
+import QrCode from './QrCode.astro';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+
+const { locale, class: className } = Astro.props;
+const t = getDictionary(locale).sample;
+const target = urls.absolute(routePath(locale, 'howItWorks'));
+---
+
+<figure class:list={['vl-band', className]}>
+  <div class="vl-band__strap" aria-hidden="true"></div>
+  <div class="vl-band__plate">
+    <QrCode value={target} label={t.scanHint} class="vl-band__qr" />
+    <div class="flex flex-col items-start justify-between gap-2">
+      <div class="h-6">
+        <Logo label={null} tone="on-dark" variant="symbol" class="h-6" />
+      </div>
+      <span class="flex items-center gap-1 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-brand-mint">
+        <Nfc class="size-3.5" aria-hidden="true" /> NFC
+      </span>
+    </div>
+  </div>
+  <figcaption class="sr-only">{t.wristband}</figcaption>
+</figure>
+
+<style>
+  .vl-band {
+    position: relative;
+    width: 100%;
+    max-width: 22rem;
+    aspect-ratio: 2.6 / 1;
+    display: grid;
+    place-items: center;
+  }
+  .vl-band__strap {
+    position: absolute;
+    inset: 22% 0;
+    border-radius: 999px;
+    background:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.05) 0 2px, transparent 2px 9px),
+      linear-gradient(180deg, #1b3a57, #102a43 55%, #0b1d2e);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.08),
+      0 18px 30px -18px rgb(16 42 67 / 0.6);
+  }
+  .vl-band__plate {
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+    padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+    border-radius: 1.1rem;
+    background: linear-gradient(160deg, #1b3a57, #0b1d2e);
+    border: 1px solid rgb(143 225 212 / 0.25);
+    box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.5);
+  }
+  .vl-band__plate :global(.vl-band__qr) {
+    width: 5.25rem;
+    height: 5.25rem;
+    border-radius: 0.45rem;
+  }
+</style>

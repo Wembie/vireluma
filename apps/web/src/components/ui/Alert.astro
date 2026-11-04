@@ -1,0 +1,33 @@
+---
+/**
+ * Inline message. `live` announces dynamic alerts to screen readers;
+ * leave it off for static page content to avoid noise.
+ */
+import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/astro';
+import { TONE_SOFT } from './variants';
+
+interface Props {
+  tone?: 'info' | 'success' | 'warning' | 'danger';
+  title?: string;
+  live?: 'polite' | 'assertive';
+  class?: string;
+}
+
+const { tone = 'info', title, live, class: className } = Astro.props;
+const icons = { info: Info, success: CircleCheck, warning: TriangleAlert, danger: CircleAlert };
+const Icon = icons[tone];
+const role = live === 'assertive' ? 'alert' : live === 'polite' ? 'status' : undefined;
+---
+
+<div
+  role={role}
+  class:list={['flex gap-3 rounded-md border border-current/15 p-4 text-sm', TONE_SOFT[tone], className]}
+>
+  <Icon class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+  <div class="min-w-0 text-fg">
+    {title && <p class="font-semibold text-current">{title}</p>}
+    <div class:list={[title && 'mt-0.5']}>
+      <slot />
+    </div>
+  </div>
+</div>

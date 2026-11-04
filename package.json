@@ -1,0 +1,56 @@
+{
+  "name": "vireluma",
+  "private": true,
+  "description": "International personal safety and emergency identification platform.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=24.22.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @vireluma/web dev",
+    "build": "pnpm --filter @vireluma/web build",
+    "preview": "pnpm --filter @vireluma/web preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "pnpm --filter @vireluma/web e2e",
+    "check:version": "node scripts/version.mjs check",
+    "check:seo": "node scripts/seo-check.mjs apps/web/dist",
+    "check:bundle": "node scripts/bundle-budget.mjs apps/web/dist",
+    "brand:export": "node scripts/brand-export.mjs",
+    "prepare": "lefthook install",
+    "check:all": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm check:version"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.22.2",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@eslint/js": "^10.0.1",
+    "@lhci/cli": "~0.15.1",
+    "@vitest/coverage-v8": "~5.0.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "globals": "^17.14.0",
+    "lefthook": "^2.2.2",
+    "node-html-parser": "^9.0.6",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "sharp": "^0.35.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "~5.0.0"
+  }
+}

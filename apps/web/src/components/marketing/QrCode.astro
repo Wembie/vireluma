@@ -1,0 +1,26 @@
+---
+/** A real, scannable QR code rendered at build time (no client JS). */
+import { qrPath } from '../../lib/qr';
+
+interface Props {
+  value: string;
+  label: string;
+  class?: string;
+  ecc?: 'L' | 'M' | 'Q' | 'H';
+}
+
+const { value, label, class: className, ecc = 'M' } = Astro.props;
+const { path, size } = qrPath(value, ecc);
+---
+
+<svg
+  viewBox={`0 0 ${size} ${size}`}
+  role="img"
+  aria-label={label}
+  shape-rendering="crispEdges"
+  class:list={['block', className]}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width={size} height={size} fill="#FFFFFF"></rect>
+  <path d={path} fill="#102A43"></path>
+</svg>

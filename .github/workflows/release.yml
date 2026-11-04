@@ -1,0 +1,81 @@
+# Controlled release: run manually on `main` after the release PR (dev → main) is merged
+# and production is deployed. Never runs automatically on every commit.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type the version in VERSION to confirm (e.g. 0.1.0)'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and publish GitHub Release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate version, changelog and tag
+        id: version
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          version=$(node scripts/version.mjs current)
+          if [ "$version" != "$CONFIRM" ]; then
+            echo "::error::Confirmation '${CONFIRM}' does not match VERSION '${version}'"; exit 1
+          fi
+          node scripts/version.mjs check --release
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          node scripts/version.mjs notes > release-notes.md
+
+      - name: Require a successful production deploy of this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(gh run list --workflow deploy-pages.yml --commit "$GITHUB_SHA" --json conclusion --jq '.[0].conclusion')
+          if [ "$status" != "success" ]; then
+            echo "::error::No successful Pages deployment for ${GITHUB_SHA} (got '${status}')"; exit 1
+          fi
+
+      - name: Append deployment metadata
+        env:
+          SITE_URL: ${{ vars.PUBLIC_SITE_ORIGIN || 'https://wembie.github.io' }}${{ vars.PUBLIC_BASE_PATH || '/vireluma' }}/
+        run: |
+          {
+            echo
+            echo '---'
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Deployed site: ${SITE_URL}"
+            echo "- Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } >> release-notes.md
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          git tag -a "$tag" -m "Release $tag" "$GITHUB_SHA"
+          git push origin "$tag"
+          gh release create "$tag" --title "VIRELUMA $tag" --notes-file release-notes.md --verify-tag

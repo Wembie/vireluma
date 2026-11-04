@@ -1,0 +1,48 @@
+---
+import type { Locale } from '@vireluma/domain';
+import { urls } from '../../config/site';
+import { getDictionary, routePath, type RouteKey } from '../../i18n';
+import Breadcrumbs from '../ui/Breadcrumbs.astro';
+
+interface Props {
+  locale: Locale;
+  routeKey: Exclude<RouteKey, 'home'>;
+  eyebrow: string;
+  title: string;
+  intro: string;
+}
+
+const { locale, routeKey, eyebrow, title, intro } = Astro.props;
+const t = getDictionary(locale);
+---
+
+<section class="relative overflow-hidden border-b border-border bg-surface" aria-labelledby="page-title">
+  <div class="vl-page-arc" aria-hidden="true"></div>
+  <div class="container-page relative pt-8 pb-14 sm:pb-20">
+    <Breadcrumbs
+      label={t.a11y.breadcrumbs}
+      items={[{ label: 'VIRELUMA', href: urls.path(routePath(locale, 'home')) }, { label: t.nav[routeKey] }]}
+    />
+    <p class="eyebrow mt-10 sm:mt-14">{eyebrow}</p>
+    <h1 id="page-title" class="mt-4 max-w-4xl text-h1">
+      {title}
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg text-fg-muted">{intro}</p>
+  </div>
+</section>
+
+<style>
+  .vl-page-arc {
+    position: absolute;
+    right: -12rem;
+    top: -18rem;
+    width: 38rem;
+    height: 38rem;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--vl-primary) 18%, transparent);
+    box-shadow:
+      0 0 0 4rem color-mix(in srgb, var(--vl-primary) 3%, transparent),
+      0 0 0 8rem color-mix(in srgb, var(--vl-primary) 2%, transparent);
+    pointer-events: none;
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import { Check, Languages } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import { urls } from '../../config/site';
+import { HTML_LANG, LOCALES, getDictionary, routePath, type RouteKey } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+  /** `menu` renders an inline list (mobile menu); `dropdown` a disclosure (desktop). */
+  layout?: 'dropdown' | 'menu';
+}
+
+const { locale, routeKey, layout = 'dropdown' } = Astro.props;
+const t = getDictionary(locale);
+const options = LOCALES.map((l) => ({
+  locale: l,
+  name: getDictionary(l).meta.languageName,
+  href: urls.path(routePath(l, routeKey)),
+  current: l === locale,
+}));
+---
+
+{layout === 'dropdown' ? (
+  <details class="vl-dropdown relative" data-dropdown>
+    <summary
+      class="flex min-h-[var(--vl-touch-min)] cursor-pointer list-none items-center gap-2 rounded-pill px-3 text-sm font-semibold text-fg hover:bg-bg-subtle [&::-webkit-details-marker]:hidden"
+      aria-label={`${t.nav.language}: ${t.meta.languageName}`}
+    >
+      <Languages class="size-5" aria-hidden="true" />
+      <span aria-hidden="true">{locale.toUpperCase()}</span>
+    </summary>
+    <ul class="absolute right-0 z-[var(--vl-z-dropdown)] mt-2 w-48 rounded-md border border-border bg-surface p-1.5 shadow-lg">
+      {options.map((o) => (
+        <li>
+          <a
+            href={o.href}
+            hreflang={HTML_LANG[o.locale]}
+            lang={HTML_LANG[o.locale]}
+            aria-current={o.current ? 'true' : undefined}
+            class="flex min-h-[var(--vl-touch-min)] items-center justify-between rounded-sm px-3 text-fg no-underline hover:bg-bg-subtle aria-[current=true]:font-semibold aria-[current=true]:text-primary"
+          >
+            {o.name}
+            {o.current && <Check class="size-4" aria-hidden="true" />}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </details>
+) : (
+  <div>
+    <p class="px-1 text-caption font-semibold uppercase tracking-wider text-fg-muted">{t.nav.language}</p>
+    <ul class="mt-2 grid grid-cols-2 gap-2">
+      {options.map((o) => (
+        <li>
+          <a
+            href={o.href}
+            hreflang={HTML_LANG[o.locale]}
+            lang={HTML_LANG[o.locale]}
+            aria-current={o.current ? 'true' : undefined}
+            class="flex min-h-[var(--vl-touch-min)] items-center justify-center rounded-md border border-border bg-surface px-3 text-fg no-underline aria-[current=true]:border-primary aria-[current=true]:font-semibold aria-[current=true]:text-primary"
+          >
+            {o.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
