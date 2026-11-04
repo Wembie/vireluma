@@ -367,6 +367,8 @@ export const es = {
   },
   app: {
     signIn: 'Iniciar sesión',
+    myAccount: 'Mi cuenta',
+    goToPeople: 'Ver mis personas',
     loading: 'Cargando…',
     notConfigured: 'Las cuentas todavía no están disponibles en esta versión de VIRELUMA.',
     fields: {

@@ -215,3 +215,10 @@
     border: 0;
   }
 }
+
+/* Session-dependent links on static pages (hint set before paint in BaseLayout).
+   Unlayered on purpose so it wins over responsive display utilities. */
+html:not([data-session='in']) .vl-signed-in,
+html[data-session='in'] .vl-signed-out {
+  display: none;
+}

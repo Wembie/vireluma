@@ -63,12 +63,21 @@ const links = (['howItWorks', 'useCases', 'qrNfc', 'security', 'faq'] as const).
         <ThemeToggle locale={locale} />
       </div>
       {backend.configured && (
-        <a
-          href={urls.path(appPath(locale, 'account'))}
-          class="ml-1 hidden min-h-[var(--vl-touch-min)] items-center rounded-pill px-3 text-sm font-semibold text-fg no-underline hover:bg-bg-subtle md:inline-flex"
-        >
-          {t.app.signIn}
-        </a>
+        <>
+          {/* Which link shows depends on the session hint set in BaseLayout (UI only). */}
+          <a
+            href={urls.path(appPath(locale, 'login'))}
+            class="vl-signed-out ml-1 hidden min-h-[var(--vl-touch-min)] items-center rounded-pill px-3 text-sm font-semibold text-fg no-underline hover:bg-bg-subtle md:inline-flex"
+          >
+            {t.app.signIn}
+          </a>
+          <a
+            href={urls.path(appPath(locale, 'account'))}
+            class="vl-signed-in ml-1 hidden min-h-[var(--vl-touch-min)] items-center rounded-pill px-3 text-sm font-semibold text-fg no-underline hover:bg-bg-subtle md:inline-flex"
+          >
+            {t.app.myAccount}
+          </a>
+        </>
       )}
       <div class="ml-2 hidden md:block xl:hidden">
         <a
@@ -107,12 +116,20 @@ const links = (['howItWorks', 'useCases', 'qrNfc', 'security', 'faq'] as const).
               ))}
             </ul>
             {backend.configured && (
-              <a
-                href={urls.path(appPath(locale, 'account'))}
-                class="mt-2 flex min-h-12 items-center rounded-md px-3 text-lg font-semibold text-fg no-underline hover:bg-bg-subtle md:hidden"
-              >
-                {t.app.signIn}
-              </a>
+              <>
+                <a
+                  href={urls.path(appPath(locale, 'login'))}
+                  class="vl-signed-out mt-2 flex min-h-12 items-center rounded-md px-3 text-lg font-semibold text-fg no-underline hover:bg-bg-subtle md:hidden"
+                >
+                  {t.app.signIn}
+                </a>
+                <a
+                  href={urls.path(appPath(locale, 'account'))}
+                  class="vl-signed-in mt-2 flex min-h-12 items-center rounded-md px-3 text-lg font-semibold text-fg no-underline hover:bg-bg-subtle md:hidden"
+                >
+                  {t.app.myAccount}
+                </a>
+              </>
             )}
             <div class="mt-6 grid gap-6 border-t border-border pt-6 sm:hidden">
               <LanguageSwitcher locale={locale} routeKey={routeKey} layout="menu" />

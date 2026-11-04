@@ -7,6 +7,14 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-04
+
+### Fixed
+
+- Public pages kept showing "Sign in" and "Create an account" to people who were already signed
+  in. A session hint set before the first paint now shows "My account" in the header and "Go to my
+  people" on the home page instead (display only; access is still enforced by the backend).
+
 ## [0.2.1] - 2026-11-04
 
 Accounts, people management and emergency-code resolution are enabled on the public site as a
