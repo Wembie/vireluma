@@ -16,20 +16,27 @@ milestone is done.
 
 Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse a11y/SEO/BP ≥ 95.
 
-## M2 — Backend foundation and authentication
+## M2 — Backend foundation and authentication · **in progress**
 
-- Single Supabase cloud project `vireluma` = production (created by owner); local Docker stack and
-  ephemeral CI databases for development. Upgrade to a paid plan with backups before real data
-- Migrations: profiles, profile_members (owner/admin/caregiver/emergency_contact/viewer),
-  emergency_contacts, emergency_information (visibility level), profile_identifiers, consent_records,
-  invitations, audit_logs, scan_events (no PII), country_configurations (emergency numbers with
-  source, verified_at, review_status), account_deletion_requests
-- RLS on every table; pgTAP tests for owner, member, revoked member, other tenant, `anon`
-- Auth: email/password, email verification, recovery, session revocation, account deletion
-- `resolve_public_profile` path returning public fields only, rate limited
-- CI job running `supabase db reset` + tests; ports/adapters in place
+- [x] Single Supabase cloud project `vireluma` = production; local Docker stack and ephemeral CI
+      databases for development (ADR-0006)
+- [x] Migrations: people, person_members (owner/admin/caregiver/emergency_contact/viewer),
+      emergency_contacts, emergency_details (visibility levels), public_identifiers, consent_records,
+      invitations, audit_logs (no values), scan_events (no IP/UA), emergency_numbers (sourced),
+      account_deletion_requests — see `docs/architecture/database.md`
+- [x] RLS on every table; pgTAP for owner, caregiver, viewer, removed member, other family, `anon`
+- [x] `resolve_emergency_profile` returning public fields only, POST-only, rate limited
+- [x] Account area: register + email confirmation, sign-in, sign-out (local/global), password
+      reset, deletion request — E2E against the local stack (CI database job)
+- [x] Auth port + domain permission matrix
+- [ ] Production auth settings (site URL, redirects, email rules) — needs `supabase login`
+- [ ] `deploy-database` job: migrations to production from `main` with approval — needs Supabase
+      access token and DB password as `production` environment secrets
+- [ ] Enable accounts in production builds once the two items above are done
+- [ ] Before real families: paid plan with backups, real SMTP, legal review of region/transfer
 
-Exit: cross-tenant and anonymous access tests pass; no service key outside Supabase.
+Exit: cross-tenant and anonymous access tests pass in CI; no service key outside Supabase;
+accounts work end-to-end on the production project.
 
 ## M3 — Core product
 
