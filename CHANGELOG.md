@@ -7,6 +7,12 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-04
+
+Production note: accounts, people management and code resolution ship in the code but stay
+disabled on the public site until a privacy notice (legal review) and a real email provider
+exist. They are verified end to end against a local backend in CI.
+
 ### Added
 
 - Supabase schema (M2): people, role-based memberships, emergency contacts and details with
@@ -32,6 +38,16 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
   readability check before printing.
 - Database read models (one call per screen), keyset-paginated activity, indexes on every foreign
   key, per-person limits, invitation preview and replacement, daily `pg_cron` retention purge.
+
+### Changed
+
+- The account home (`/{locale}/app/`) is now the people dashboard; sign-out, display name,
+  language and deletion requests moved to `/{locale}/app/settings/`.
+
+### Security
+
+- The emergency page never renders network data as HTML and never builds links from page text;
+  it sends no referrer and stores nothing about the person or the helper.
 
 ## [0.1.0] - 2026-11-04
 
