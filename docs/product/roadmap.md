@@ -18,7 +18,8 @@ Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse
 
 ## M2 — Backend foundation and authentication
 
-- Supabase projects `vireluma-dev` / `vireluma-prod` (owner creates; region decided with legal)
+- Single Supabase cloud project `vireluma` = production (created by owner); local Docker stack and
+  ephemeral CI databases for development. Upgrade to a paid plan with backups before real data
 - Migrations: profiles, profile_members (owner/admin/caregiver/emergency_contact/viewer),
   emergency_contacts, emergency_information (visibility level), profile_identifiers, consent_records,
   invitations, audit_logs, scan_events (no PII), country_configurations (emergency numbers with
