@@ -86,7 +86,7 @@ const text = (value: string, max: number, required: boolean): FieldError | undef
   return undefined;
 };
 
-const clean = <T extends object>(errors: FieldErrors<T>): FieldErrors<T> =>
+const clean = <T extends object>(errors: { [K in keyof T]?: FieldError | undefined }): FieldErrors<T> =>
   Object.fromEntries(Object.entries(errors).filter(([, v]) => v !== undefined)) as FieldErrors<T>;
 
 /** `YYYY-MM-DD`, after 1900-01-01 and not in the future. */
