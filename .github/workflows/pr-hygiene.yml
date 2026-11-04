@@ -1,0 +1,49 @@
+# Enforces the branch flow and Conventional Commits on pull requests.
+#   feature/* | fix/* | chore/* | docs/* → dev → main
+name: PR hygiene
+
+on:
+  pull_request:
+    branches: [dev, main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  branch-flow:
+    name: Branch flow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only dev (or a hotfix) may target main
+        if: github.base_ref == 'main'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          head="$HEAD_REF"
+          if [ "$head" != "dev" ] && [[ "$head" != hotfix/* ]]; then
+            echo "::error::PRs into main must come from dev (or hotfix/*). Got '${head}'."; exit 1
+          fi
+
+  commits:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint commit messages in this PR
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+      - name: Lint PR title (used for squash merges)
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$TITLE" | pnpm exec commitlint --verbose

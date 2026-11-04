@@ -1,0 +1,145 @@
+# Continuous integration for both long-lived branches.
+#   dev  = DESARROLLO (integration)   → builds a development artifact (noindex), no hosting.
+#   main = PRD (production)           → builds a production artifact; deploy-pages.yml publishes it.
+# Every PR into dev or main must pass all jobs (configure them as required checks).
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Production build when targeting main, development otherwise.
+  PUBLIC_APP_ENV: ${{ (github.ref == 'refs/heads/main' || github.base_ref == 'main') && 'production' || 'development' }}
+  PUBLIC_SITE_ORIGIN: ${{ vars.PUBLIC_SITE_ORIGIN || 'https://wembie.github.io' }}
+  PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || '/vireluma' }}
+
+jobs:
+  quality:
+    name: Format · Lint · Types · Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
+      - run: pnpm check:version
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  build:
+    name: Build · SEO · Bundle budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm check:seo
+      - run: pnpm check:bundle
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-dist-${{ env.PUBLIC_APP_ENV }}
+          path: apps/web/dist/
+          retention-days: ${{ env.PUBLIC_APP_ENV == 'production' && 30 || 14 }}
+          if-no-files-found: error
+
+  e2e:
+    name: E2E · Accessibility (axe)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist-${{ env.PUBLIC_APP_ENV }}
+          path: apps/web/dist/
+      - name: Install Playwright Chromium
+        run: pnpm --filter @vireluma/web exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - name: Capture screenshots for review
+        if: always()
+        run: pnpm --filter @vireluma/web exec playwright test visual --project=desktop
+        env:
+          CAPTURE_SCREENS: '1'
+      - name: Upload Playwright report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-${{ github.run_id }}
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-dist-${{ env.PUBLIC_APP_ENV }}
+          path: apps/web/dist/
+      - name: Run Lighthouse CI
+        run: pnpm dlx @lhci/cli@0.16.0 autorun --config=./lighthouserc.cjs
+
+  dependencies:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level=high --prod
