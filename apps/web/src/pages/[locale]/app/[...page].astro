@@ -1,0 +1,62 @@
+---
+/** Account area: one static shell per page and locale; behaviour lives in AuthIsland. */
+import type { GetStaticPaths } from 'astro';
+import type { Locale } from '@vireluma/domain';
+import AuthIsland from '../../../components/app/AuthIsland';
+import { urls } from '../../../config/site';
+import { APP_PAGES, LOCALES, appPath, getDictionary, type AppPage } from '../../../i18n';
+import AppLayout from '../../../layouts/AppLayout.astro';
+
+export const getStaticPaths = (() =>
+  LOCALES.flatMap((locale) =>
+    APP_PAGES.map((page) => ({
+      params: { locale, page: page === 'account' ? undefined : page },
+      props: { locale, page },
+    })),
+  )) satisfies GetStaticPaths;
+
+interface Props {
+  locale: Locale;
+  page: AppPage;
+}
+
+const { locale, page } = Astro.props;
+const t = getDictionary(locale).app;
+const paths = Object.fromEntries(APP_PAGES.map((p) => [p, urls.path(appPath(locale, p))])) as Record<
+  AppPage,
+  string
+>;
+
+const TITLES: Record<AppPage, string> = {
+  account: t.account.title,
+  login: t.login.title,
+  register: t.register.title,
+  'check-email': t.checkEmail.title,
+  'forgot-password': t.forgot.title,
+  'reset-password': t.reset.title,
+  callback: t.callback.working,
+};
+const LEADS: Partial<Record<AppPage, string>> = {
+  login: t.login.lead,
+  register: t.register.lead,
+  'forgot-password': t.forgot.lead,
+};
+---
+
+<AppLayout locale={locale} page={page} title={TITLES[page]}>
+  {LEADS[page] && (
+    <p slot="lead" class="mt-3 text-lg text-fg-muted">
+      {LEADS[page]}
+    </p>
+  )}
+  {page === 'check-email' ? (
+    <div class="grid gap-5">
+      <p class="text-fg">{t.checkEmail.body}</p>
+      <a href={paths.login} class="font-semibold">
+        {t.signIn}
+      </a>
+    </div>
+  ) : (
+    <AuthIsland client:load page={page} locale={locale} strings={t} paths={paths} />
+  )}
+</AppLayout>

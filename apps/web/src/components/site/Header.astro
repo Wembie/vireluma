@@ -1,8 +1,8 @@
 ---
 import { CodeXml, Menu, X } from '@lucide/astro';
 import type { Locale } from '@vireluma/domain';
-import { project, urls } from '../../config/site';
-import { getDictionary, routePath, type RouteKey } from '../../i18n';
+import { backend, project, urls } from '../../config/site';
+import { appPath, getDictionary, routePath, type RouteKey } from '../../i18n';
 import Logo from '../brand/Logo.astro';
 import { buttonClass } from '../ui/variants';
 import LanguageSwitcher from './LanguageSwitcher.astro';
@@ -62,7 +62,15 @@ const links = (['howItWorks', 'useCases', 'qrNfc', 'security', 'faq'] as const).
         <LanguageSwitcher locale={locale} routeKey={routeKey} />
         <ThemeToggle locale={locale} />
       </div>
-      <div class="ml-2 hidden md:block">
+      {backend.configured && (
+        <a
+          href={urls.path(appPath(locale, 'account'))}
+          class="ml-1 hidden min-h-[var(--vl-touch-min)] items-center rounded-pill px-3 text-sm font-semibold text-fg no-underline hover:bg-bg-subtle md:inline-flex"
+        >
+          {t.app.signIn}
+        </a>
+      )}
+      <div class="ml-2 hidden md:block xl:hidden">
         <a
           href={project.repositoryUrl}
           target="_blank"
@@ -98,6 +106,14 @@ const links = (['howItWorks', 'useCases', 'qrNfc', 'security', 'faq'] as const).
                 </li>
               ))}
             </ul>
+            {backend.configured && (
+              <a
+                href={urls.path(appPath(locale, 'account'))}
+                class="mt-2 flex min-h-12 items-center rounded-md px-3 text-lg font-semibold text-fg no-underline hover:bg-bg-subtle md:hidden"
+              >
+                {t.app.signIn}
+              </a>
+            )}
             <div class="mt-6 grid gap-6 border-t border-border pt-6 sm:hidden">
               <LanguageSwitcher locale={locale} routeKey={routeKey} layout="menu" />
               <ThemeToggle locale={locale} layout="menu" />

@@ -16,6 +16,8 @@ const KB = 1024;
 /** Public pages are content pages: they should need almost no JavaScript. */
 const BUDGETS = [
   { match: /^design-system\//, js: 80 * KB, css: 30 * KB },
+  // Account area: React + supabase-js. Never loaded on public or emergency pages.
+  { match: /^[a-z]{2}\/app\//, js: 110 * KB, css: 30 * KB },
   { match: /.*/, js: 12 * KB, css: 25 * KB },
 ];
 

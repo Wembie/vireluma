@@ -9,11 +9,11 @@ The owner defined two long-lived branches: **`main` = production (PRD)** and
 
 ## Decision
 
-| Branch      | Role             | CI                         | Build env (`PUBLIC_APP_ENV`) | Hosted where             | Supabase (M2)   |
-| ----------- | ---------------- | -------------------------- | ---------------------------- | ------------------------ | --------------- |
-| `main`      | Production       | full CI + deploy + release | `production` (indexable)     | GitHub Pages             | `vireluma-prod` |
-| `dev`       | Integration      | full CI                    | `development` (noindex)      | not hosted — CI artifact | `vireluma-dev`  |
-| `feature/*` | Work in progress | CI on PR into `dev`        | `development`                | —                        | local / dev     |
+| Branch      | Role             | CI                         | Build env (`PUBLIC_APP_ENV`) | Hosted where             | Supabase (M2)      |
+| ----------- | ---------------- | -------------------------- | ---------------------------- | ------------------------ | ------------------ |
+| `main`      | Production       | full CI + deploy + release | `production` (indexable)     | GitHub Pages             | `vireluma` (cloud) |
+| `dev`       | Integration      | full CI                    | `development` (noindex)      | not hosted — CI artifact | ephemeral CI DB    |
+| `feature/*` | Work in progress | CI on PR into `dev`        | `development`                | —                        | local (Docker)     |
 
 Flow: `feature/*` → PR → `dev` → PR (release) → `main`. Hotfixes: `hotfix/*` → `main`, then
 merge `main` back into `dev`. `pr-hygiene.yml` rejects PRs into `main` from any other branch.
@@ -22,7 +22,8 @@ merge `main` back into `dev`. `pr-hygiene.yml` rejects PRs into `main` from any 
   download; E2E, axe and Lighthouse run against that exact build.
 - There is no separate staging branch. Authorised DAST (OWASP ZAP baseline, M5) runs against the
   CI preview build, never against production without explicit authorisation.
-- Two Supabase projects (the free tier allows two) give data isolation between DEV and PRD.
+- A single Supabase cloud project (`vireluma`) is production (ADR-0006). DEV isolation comes from
+  local and ephemeral CI databases; `dev` builds never point at the production project.
 
 ## Consequences
 

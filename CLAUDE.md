@@ -19,7 +19,11 @@ pnpm check:bundle       # per-page JS/CSS gzip budgets
 pnpm e2e                # Playwright + axe against dist (build first)
 CAPTURE_SCREENS=1 pnpm --filter @vireluma/web exec playwright test visual --project=desktop
 node scripts/brand/build-logos.mjs && pnpm brand:export   # regenerate brand assets
+pnpm db:start && pnpm db:reset && pnpm db:lint && pnpm db:test  # Supabase (needs Docker)
 ```
+
+Docker is provided by Rancher Desktop; start it with
+`"C:\Program Files\Rancher Desktop\resources\resources\win32\bin\rdctl.exe" start`.
 
 Before finishing any change: `pnpm check:all && pnpm build && pnpm check:seo && pnpm check:bundle && pnpm e2e`.
 Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
@@ -29,8 +33,10 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
 - `apps/web` — Astro 7 static site. `src/pages/[locale]/[...slug].astro` generates all localized
   pages from `src/i18n/routes.ts`; page bodies live in `src/views/`. UI in `src/components/ui`
   (Astro; React only in `ui/react/` for real interactivity), site chrome in `components/site`.
-- `packages/domain` — framework-free logic (URL service, public IDs, locales, contrast). Will host
-  permission rules and backend ports in M2. Imported as `@vireluma/domain`.
+- `packages/domain` — framework-free logic (URL service, public IDs, locales, contrast, the
+  permission matrix mirroring the database). Imported as `@vireluma/domain`.
+- `supabase/` — migrations, pgTAP tests (`tests/database`) and local config. Read
+  `docs/architecture/database.md` before changing the schema.
 - `brand/source/` — editable brand sources; `apps/web/public/brand/` — generated assets (don't hand-edit).
 - `scripts/` — version, SEO, bundle-budget checks and brand generators.
 - `docs/adr/` — architecture decisions. Read the relevant ADR before changing hosting, URLs, IDs,

@@ -1,0 +1,63 @@
+---
+/**
+ * Layout for the account area (/{locale}/app/...). Always noindex; minimal
+ * chrome so forms stay focused and fast on low-end phones.
+ */
+import type { Locale } from '@vireluma/domain';
+import Logo from '../components/brand/Logo.astro';
+import LanguageSwitcher from '../components/site/LanguageSwitcher.astro';
+import ThemeToggle from '../components/site/ThemeToggle.astro';
+import { urls } from '../config/site';
+import { LOCALES, appPath, getDictionary, routePath, type AppPage } from '../i18n';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  locale: Locale;
+  page: AppPage;
+  title: string;
+}
+
+const { locale, page, title } = Astro.props;
+const t = getDictionary(locale);
+const hrefs = Object.fromEntries(LOCALES.map((l) => [l, urls.path(appPath(l, page))])) as Record<
+  Locale,
+  string
+>;
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${title} — VIRELUMA`}
+  description={t.footer.description}
+  path={appPath(locale, page)}
+  noindex
+>
+  <header class="border-b border-border bg-bg">
+    <div class="container-page flex h-16 items-center justify-between gap-4">
+      <a href={urls.path(routePath(locale, 'home'))} class="h-8" aria-label={t.a11y.homeLink}>
+        <Logo label={null} class="h-8" />
+      </a>
+      <div class="flex items-center gap-1">
+        <LanguageSwitcher locale={locale} hrefs={hrefs} />
+        <ThemeToggle locale={locale} />
+      </div>
+    </div>
+  </header>
+  <main id="main" tabindex="-1" class="flex flex-1 justify-center px-4 py-10 focus:outline-none sm:py-16">
+    <div class="w-full max-w-md">
+      <h1 class="text-h2">{title}</h1>
+      <slot name="lead" />
+      <div class="mt-8 rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8">
+        <slot />
+      </div>
+    </div>
+  </main>
+  <footer class="border-t border-border py-6">
+    <p class="container-page text-sm text-fg-muted">{t.footer.disclaimer}</p>
+  </footer>
+</BaseLayout>
+
+<script>
+  import { initDropdowns } from '../scripts/disclosure';
+  initDropdowns();
+</script>

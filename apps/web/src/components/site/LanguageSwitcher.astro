@@ -4,19 +4,22 @@ import type { Locale } from '@vireluma/domain';
 import { urls } from '../../config/site';
 import { HTML_LANG, LOCALES, getDictionary, routePath, type RouteKey } from '../../i18n';
 
-interface Props {
+type Props = {
   locale: Locale;
-  routeKey: RouteKey;
   /** `menu` renders an inline list (mobile menu); `dropdown` a disclosure (desktop). */
   layout?: 'dropdown' | 'menu';
-}
+} & (
+  | { routeKey: RouteKey; hrefs?: never }
+  /** Root-relative URL of the equivalent page in every locale (non-marketing pages). */
+  | { hrefs: Record<Locale, string>; routeKey?: never }
+);
 
-const { locale, routeKey, layout = 'dropdown' } = Astro.props;
+const { locale, routeKey, hrefs, layout = 'dropdown' } = Astro.props;
 const t = getDictionary(locale);
 const options = LOCALES.map((l) => ({
   locale: l,
   name: getDictionary(l).meta.languageName,
-  href: urls.path(routePath(l, routeKey)),
+  href: hrefs ? hrefs[l] : urls.path(routePath(l, routeKey)),
   current: l === locale,
 }));
 ---

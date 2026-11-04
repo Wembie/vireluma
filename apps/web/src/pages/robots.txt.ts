@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { LOCALES } from '@vireluma/domain';
 import { build, urls } from '../config/site';
 
 /**
@@ -13,7 +14,7 @@ export const GET: APIRoute = () => {
         'User-agent: *',
         'Allow: /',
         `Disallow: ${urls.path('p/')}`,
-        `Disallow: ${urls.path('app/')}`,
+        ...LOCALES.map((locale) => `Disallow: ${urls.path(`${locale}/app/`)}`),
         `Disallow: ${urls.path('design-system/')}`,
         '',
         `Sitemap: ${urls.absoluteAsset('sitemap-index.xml')}`,

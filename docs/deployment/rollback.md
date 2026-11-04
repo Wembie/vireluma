@@ -21,7 +21,7 @@ Verify: `curl -s https://wembie.github.io/vireluma/version.json` shows the expec
 ## Backend (from M2)
 
 - Migrations are forward-only. A bad migration is fixed by a new corrective migration, tested on
-  `vireluma-dev` first.
+  the local and ephemeral CI databases first (there is no cloud staging project).
 - Destructive changes follow expand → migrate → contract across separate releases so the previous
   frontend keeps working during rollback.
 - Point-in-time recovery depends on the Supabase plan; document the plan's guarantees before

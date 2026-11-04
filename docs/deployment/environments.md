@@ -2,21 +2,24 @@
 
 See [ADR-0003](../adr/0003-branches-and-environments.md) for the rationale.
 
-| Environment | Branch | Build `PUBLIC_APP_ENV` | Indexable | Hosted                             | Backend (M2)    |
-| ----------- | ------ | ---------------------- | --------- | ---------------------------------- | --------------- |
-| Local       | any    | `local`                | no        | `pnpm dev` / `pnpm preview`        | local Supabase  |
-| Development | `dev`  | `development`          | no        | CI artifact `web-dist-development` | `vireluma-dev`  |
-| Production  | `main` | `production`           | yes       | https://wembie.github.io/vireluma/ | `vireluma-prod` |
+| Environment | Branch | Build `PUBLIC_APP_ENV` | Indexable | Hosted                             | Backend (M2)            |
+| ----------- | ------ | ---------------------- | --------- | ---------------------------------- | ----------------------- |
+| Local       | any    | `local`                | no        | `pnpm dev` / `pnpm preview`        | local Supabase (Docker) |
+| Development | `dev`  | `development`          | no        | CI artifact `web-dist-development` | ephemeral CI database   |
+| Production  | `main` | `production`           | yes       | https://wembie.github.io/vireluma/ | `vireluma` (cloud)      |
 
 ## Configuration values
 
-| Name                                            | Kind                         | Where                                        | Notes                                     |
-| ----------------------------------------------- | ---------------------------- | -------------------------------------------- | ----------------------------------------- |
-| `PUBLIC_SITE_ORIGIN`                            | repository **variable**      | Settings → Secrets and variables → Variables | default `https://wembie.github.io`        |
-| `PUBLIC_BASE_PATH`                              | repository **variable**      | same                                         | default `/vireluma`; `/` on custom domain |
-| `PUBLIC_SUPABASE_URL`                           | environment variable (M2)    | Environments → `development` / `production`  | public                                    |
-| `PUBLIC_SUPABASE_PUBLISHABLE_KEY`               | environment variable (M2)    | same                                         | public by design; RLS protects data       |
-| `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` | environment **secrets** (M2) | same, with required reviewers on production  | migrations only; never in the frontend    |
+| Name                                            | Kind                         | Where                                           | Notes                                              |
+| ----------------------------------------------- | ---------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `PUBLIC_SITE_ORIGIN`                            | repository **variable**      | Settings → Secrets and variables → Variables    | default `https://wembie.github.io`                 |
+| `PUBLIC_BASE_PATH`                              | repository **variable**      | same                                            | default `/vireluma`; `/` on custom domain          |
+| `SUPABASE_URL`                                  | repository **variable** (M2) | Settings → Secrets and variables → Variables    | production project URL; used only by `main` builds |
+| `SUPABASE_PUBLISHABLE_KEY`                      | repository **variable** (M2) | same                                            | public by design; RLS protects data                |
+| `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` | environment **secrets** (M2) | Environments → `production` (required reviewer) | migrations only; never in the frontend             |
+
+Builds map the repository variables to `PUBLIC_SUPABASE_URL` / `PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+**only for production (`main`)**. `dev` and PR builds get no cloud backend (ADR-0006).
 
 Never place a service-role key or any secret in a `PUBLIC_*` variable — it is embedded in the
 static build and visible to everyone.

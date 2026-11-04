@@ -365,6 +365,82 @@ export const fr: Dictionary = {
       ],
     },
   },
+  app: {
+    signIn: 'Se connecter',
+    loading: 'Chargement…',
+    notConfigured: 'Les comptes ne sont pas encore disponibles dans cette version de VIRELUMA.',
+    fields: {
+      email: 'Adresse e-mail',
+      password: 'Mot de passe',
+      newPassword: 'Nouveau mot de passe',
+      passwordHint: 'Au moins 12 caractères. Une longue phrase est plus sûre et plus facile à retenir.',
+      showPassword: 'Afficher le mot de passe',
+    },
+    login: {
+      title: 'Connexion',
+      lead: 'Gérez les profils des personnes que vous accompagnez.',
+      submit: 'Se connecter',
+      forgot: 'Mot de passe oublié ?',
+      noAccount: 'Vous n’avez pas de compte ?',
+      register: 'Créer un compte',
+    },
+    register: {
+      title: 'Créez votre compte',
+      lead: 'Avec un compte, vous pouvez créer et gérer des profils d’urgence.',
+      submit: 'Créer le compte',
+      haveAccount: 'Vous avez déjà un compte ?',
+      privacy:
+        'Nous utilisons votre adresse e-mail uniquement pour votre compte et les alertes de sécurité. Elle n’apparaît jamais sur un profil d’urgence.',
+    },
+    checkEmail: {
+      title: 'Consultez vos e-mails',
+      body: 'Si l’adresse est valide, nous vous avons envoyé un lien pour confirmer votre compte. Cela peut prendre quelques minutes ; vérifiez aussi vos courriers indésirables.',
+    },
+    forgot: {
+      title: 'Réinitialisez votre mot de passe',
+      lead: 'Nous vous enverrons un lien pour créer un nouveau mot de passe.',
+      submit: 'Envoyer le lien',
+      sent: 'Si un compte existe pour cette adresse, vous recevrez un lien dans quelques minutes.',
+    },
+    reset: {
+      title: 'Créez un nouveau mot de passe',
+      submit: 'Enregistrer le mot de passe',
+      done: 'Votre mot de passe a été mis à jour.',
+    },
+    callback: {
+      working: 'Confirmation du lien…',
+      failed:
+        'Nous n’avons pas pu valider le lien. Il a peut-être expiré ou été ouvert sur un autre appareil. Si vous confirmiez votre adresse e-mail, vous pouvez maintenant vous connecter.',
+    },
+    account: {
+      title: 'Votre compte',
+      signedInAs: 'Connecté en tant que',
+      peopleTitle: 'Personnes',
+      peopleBody: 'La création de profils d’urgence arrive dans la prochaine version.',
+      signOut: 'Se déconnecter',
+      signOutEverywhere: 'Se déconnecter de tous les appareils',
+      deleteTitle: 'Supprimer votre compte',
+      deleteBody:
+        'Vous pouvez demander la suppression de votre compte et des données associées. Nous vous aiderons d’abord à transférer les profils que vous gérez.',
+      deleteButton: 'Demander la suppression',
+      deleteConfirmTitle: 'Demander la suppression de votre compte ?',
+      deleteConfirmBody: 'Nous enregistrerons votre demande et vous contacterons pour la finaliser.',
+      deleteRequested: 'Nous avons bien reçu votre demande de suppression.',
+      cancel: 'Annuler',
+    },
+    errors: {
+      not_configured: 'Les comptes ne sont pas encore disponibles dans cette version.',
+      invalid_credentials: 'L’adresse e-mail ou le mot de passe est incorrect.',
+      email_not_confirmed:
+        'Confirmez votre adresse e-mail avant de vous connecter. Consultez votre boîte de réception.',
+      weak_password: 'Le mot de passe doit contenir entre 12 et 72 caractères.',
+      invalid_email: 'Saisissez une adresse e-mail valide.',
+      rate_limited: 'Trop de tentatives. Patientez quelques minutes avant de réessayer.',
+      link_invalid: 'Le lien est invalide ou a expiré. Demandez-en un nouveau.',
+      network: 'Vous semblez hors ligne. Vérifiez votre connexion et réessayez.',
+      unknown: 'Une erreur est survenue. Veuillez réessayer.',
+    },
+  },
   notFound: {
     title: 'Page introuvable',
     body: 'La page que vous cherchez n’existe pas ou a été déplacée.',
