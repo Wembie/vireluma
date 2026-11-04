@@ -76,12 +76,8 @@ set local role authenticated;
 select is((select count(*)::int from public.people), 0, 'another family cannot see the person');
 select is((select count(*)::int from public.emergency_contacts), 0, 'another family cannot see contacts');
 select is((select count(*)::int from public.emergency_details), 0, 'another family cannot see details');
-select is(
-  (with u as (update public.people set preferred_name = 'Hacked' where id = current_setting('test.person')::uuid returning 1)
-   select count(*)::int from u),
-  0,
-  'another family cannot update the person'
-);
+with u as (update public.people set preferred_name = 'Hacked' where id = current_setting('test.person')::uuid returning 1)
+select is(count(*)::int, 0, 'another family cannot update the person') from u;
 select throws_ok(
   $$ insert into public.emergency_contacts (person_id, name, phone_e164)
      values (current_setting('test.person')::uuid, 'Intruder', '+15555550100') $$,
@@ -134,12 +130,8 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 set local role authenticated;
 
 select lives_ok($$ select public.accept_invitation(current_setting('test.viewer_token')) $$, 'viewer joins');
-select is(
-  (with u as (update public.emergency_contacts set name = 'X' where person_id = current_setting('test.person')::uuid returning 1)
-   select count(*)::int from u),
-  0,
-  'viewer cannot edit contacts'
-);
+with u as (update public.emergency_contacts set name = 'X' where person_id = current_setting('test.person')::uuid returning 1)
+select is(count(*)::int, 0, 'viewer cannot edit contacts') from u;
 
 -- ── Owner manages membership ─────────────────────────────────────────────────
 reset role;

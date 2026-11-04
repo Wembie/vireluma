@@ -24,7 +24,12 @@
     "check:bundle": "node scripts/bundle-budget.mjs apps/web/dist",
     "brand:export": "node scripts/brand-export.mjs",
     "prepare": "lefthook install",
-    "check:all": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm check:version"
+    "check:all": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm check:version",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset --no-seed",
+    "db:lint": "supabase db lint --level warning --fail-on error",
+    "db:test": "supabase test db"
   },
   "devEngines": {
     "runtime": {
