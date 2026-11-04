@@ -4,3 +4,6 @@ export * from './urls.ts';
 export * from './contrast.ts';
 export * from './permissions.ts';
 export * from './auth.ts';
+export * from './phone.ts';
+export * from './people.ts';
+export * from './emergency.ts';
