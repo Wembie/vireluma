@@ -128,7 +128,8 @@ jobs:
           name: web-dist-${{ env.PUBLIC_APP_ENV }}
           path: apps/web/dist/
       - name: Run Lighthouse CI
-        run: pnpm dlx @lhci/cli@0.16.0 autorun --config=./lighthouserc.cjs
+        # Version pinned in the lockfile (devDependency) so it obeys minimumReleaseAge.
+        run: pnpm exec lhci autorun --config=./lighthouserc.cjs
 
   dependencies:
     name: Dependency audit

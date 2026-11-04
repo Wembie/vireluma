@@ -4,7 +4,8 @@ import { defineConfig, devices } from '@playwright/test';
  * E2E runs against the production build served by `astro preview`, so base
  * path handling (/vireluma/) is exercised exactly as on GitHub Pages.
  */
-const PORT = 4321;
+// Dedicated port so tests never hit a running `astro dev` server (4321) by accident.
+const PORT = Number(process.env.E2E_PORT ?? 4329);
 const BASE_PATH = process.env.PUBLIC_BASE_PATH ?? '/vireluma';
 
 export default defineConfig({
@@ -24,7 +25,7 @@ export default defineConfig({
   webServer: {
     command: `pnpm exec astro preview --port ${PORT}`,
     url: `http://localhost:${PORT}${BASE_PATH}/`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 60_000,
   },
 });
