@@ -73,6 +73,9 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
 - `main` = production (PRD) → deployed to GitHub Pages by `deploy-pages.yml` only.
 - `dev` = development (DESARROLLO) → full CI + downloadable artifact, **not hosted**.
 - Flow: `feature/*` → PR into `dev` → release PR `dev` → `main`. Only `dev`/`hotfix/*` may target `main`.
+- Releases are automatic: after a verified production deploy, `release.yml` tags `v<VERSION>` and
+  publishes a GitHub Release **only if that tag does not exist**. To release, bump `VERSION` and
+  date its CHANGELOG section in the PR to `main` (`docs/deployment/releases.md`).
 - Do not push, open PRs, tag or release without the owner's explicit approval.
 - In workflows: least-privilege `permissions`, never interpolate `${{ }}` user-controlled values
   inside `run:` (pass through `env:`).
@@ -88,6 +91,8 @@ Use `PUBLIC_APP_ENV=production pnpm build` to check production indexing rules.
   wrap it in a `hidden md:block` container instead.
 - `text-fg-muted` fails contrast on tinted surfaces (`subtle`, `accent`, soft feedback): use `text-fg`.
 - Astro 7 errors on unclosed/invalid HTML nesting; `compressHTML` is set to `true` explicitly.
+- Local ports: `pnpm dev` uses 4321; E2E uses 4329 (never reuses a running server); Lighthouse
+  honours `LHCI_PORT` — use another port locally if the dev server is running.
 - Playwright tests touching React islands must wait for hydration (`client:visible`); see
   `hydrated()` in `e2e/design-system.spec.ts`.
 - GitHub Pages can't set headers (no CSP/HSTS customisation) and ignores `/vireluma/robots.txt`;

@@ -107,3 +107,11 @@ jobs:
             echo "${code} /${path}"
             [ "$code" = "200" ] || exit 1
           done
+
+  release:
+    name: Release (only when VERSION is new)
+    needs: verify
+    permissions:
+      contents: write
+      actions: read
+    uses: ./.github/workflows/release.yml

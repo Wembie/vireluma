@@ -5,7 +5,7 @@ All notable changes to VIRELUMA are documented here. The format follows
 [Semantic Versioning](https://semver.org/). The release version lives in `VERSION`;
 see [docs/deployment/releases.md](docs/deployment/releases.md).
 
-## [0.1.0]
+## [0.1.0] - 2026-11-04
 
 ### Added
 
@@ -20,5 +20,5 @@ see [docs/deployment/releases.md](docs/deployment/releases.md).
 - Static, internationalised public website (es, en, pt, fr) with localized slugs, hreflang,
   canonical URLs, structured data, sitemap and privacy-first indexing rules.
 - GitHub Actions: CI for `dev` and `main`, CodeQL, secret scanning, GitHub Pages deployment from
-  `main` with post-deploy verification, and a controlled release workflow.
+  `main` with post-deploy verification, and automatic version-driven GitHub Releases.
 - Architecture decision records, security, privacy, deployment and product documentation.

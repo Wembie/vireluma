@@ -1,13 +1,15 @@
-# Controlled release: run manually on `main` after the release PR (dev → main) is merged
-# and production is deployed. Never runs automatically on every commit.
+# Creates the Git tag and GitHub Release for the version in VERSION.
+#
+# Runs automatically at the end of deploy-pages.yml, after the production
+# deployment is verified live. It is idempotent and version-driven, not
+# commit-driven: if tag v<VERSION> already exists, nothing is released. A new
+# release therefore happens only when a PR bumps VERSION and dates its
+# CHANGELOG section. It can also be run manually on main to backfill a release.
 name: Release
 
 on:
+  workflow_call:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type the version in VERSION to confirm (e.g. 0.1.0)'
-        required: true
 
 permissions:
   contents: read
@@ -29,27 +31,26 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
 
-      - name: Validate version, changelog and tag
+      - name: Decide whether this version needs a release
         id: version
-        env:
-          CONFIRM: ${{ inputs.confirm }}
         run: |
           version=$(node scripts/version.mjs current)
-          if [ "$version" != "$CONFIRM" ]; then
-            echo "::error::Confirmation '${CONFIRM}' does not match VERSION '${version}'"; exit 1
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/v${version}" >/dev/null; then
+            echo "Tag v${version} already exists — nothing to release (bump VERSION to release)."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           node scripts/version.mjs check --release
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
           node scripts/version.mjs notes > release-notes.md
+          echo "release=true" >> "$GITHUB_OUTPUT"
 
       - name: Require a successful production deploy of this commit
+        if: steps.version.outputs.release == 'true' && github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -59,6 +60,7 @@ jobs:
           fi
 
       - name: Append deployment metadata
+        if: steps.version.outputs.release == 'true'
         env:
           SITE_URL: ${{ vars.PUBLIC_SITE_ORIGIN || 'https://wembie.github.io' }}${{ vars.PUBLIC_BASE_PATH || '/vireluma' }}/
         run: |
@@ -71,11 +73,14 @@ jobs:
           } >> release-notes.md
 
       - name: Create tag and release
+        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           tag="v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$tag" -m "Release $tag" "$GITHUB_SHA"
           git push origin "$tag"
-          gh release create "$tag" --title "VIRELUMA $tag" --notes-file release-notes.md --verify-tag
+          gh release create "$tag" --title "VIRELUMA $tag" --notes-file release-notes.md --verify-tag --latest
