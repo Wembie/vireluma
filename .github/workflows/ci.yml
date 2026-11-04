@@ -131,6 +131,31 @@ jobs:
         # Version pinned in the lockfile (devDependency) so it obeys minimumReleaseAge.
         run: pnpm exec lhci autorun --config=./lighthouserc.cjs
 
+  database:
+    name: Database · Migrations · RLS tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Ephemeral local stack: no cloud project, no secrets. Only the services the tests need.
+      - name: Start Supabase (local, ephemeral)
+        run: pnpm exec supabase db start
+      - name: Apply all migrations from scratch
+        run: pnpm exec supabase db reset --no-seed
+      - name: Lint SQL (plpgsql_check)
+        run: pnpm exec supabase db lint --level warning --fail-on error
+      - name: pgTAP tests (RLS, grants, resolver)
+        run: pnpm exec supabase test db
+      - name: Stop Supabase
+        if: always()
+        run: pnpm exec supabase stop --no-backup
+
   dependencies:
     name: Dependency audit
     runs-on: ubuntu-latest
