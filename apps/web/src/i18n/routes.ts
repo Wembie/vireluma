@@ -50,9 +50,18 @@ export function alternates(key: RouteKey): { locale: Locale; path: string }[] {
   return LOCALES.map((locale) => ({ locale, path: routePath(locale, key) }));
 }
 
-/** Account area pages (noindex, same slug in every locale — they are not marketing pages). */
+/**
+ * Account area pages (noindex, same slug in every locale — they are not marketing pages).
+ * `account` is the dashboard at `/{locale}/app/`. Person-specific pages take `?id=<uuid>`
+ * (an internal key protected by RLS, never personal data).
+ */
 export const APP_PAGES = [
   'account',
+  'new',
+  'person',
+  'qr',
+  'invite',
+  'settings',
   'login',
   'register',
   'check-email',
