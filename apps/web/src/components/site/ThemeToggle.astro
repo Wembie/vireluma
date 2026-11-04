@@ -1,0 +1,76 @@
+---
+/**
+ * Light / dark / system selector. Requires JavaScript, so it stays hidden
+ * until the script runs; without JS the system preference applies.
+ */
+import { Monitor, Moon, Sun } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import { getDictionary } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+  layout?: 'dropdown' | 'menu';
+}
+
+const { locale, layout = 'dropdown' } = Astro.props;
+const t = getDictionary(locale).nav;
+const choices = [
+  { value: 'light', label: t.themeLight, Icon: Sun },
+  { value: 'dark', label: t.themeDark, Icon: Moon },
+  { value: 'system', label: t.themeSystem, Icon: Monitor },
+] as const;
+---
+
+<div data-theme-toggle hidden>
+  {layout === 'dropdown' ? (
+    <details class="vl-dropdown relative" data-dropdown>
+      <summary
+        class="flex size-11 cursor-pointer list-none items-center justify-center rounded-pill text-fg hover:bg-bg-subtle [&::-webkit-details-marker]:hidden"
+        aria-label={t.theme}
+        title={t.theme}
+      >
+        <Sun class="size-5 dark:hidden" aria-hidden="true" />
+        <Moon class="hidden size-5 dark:block" aria-hidden="true" />
+      </summary>
+      <div
+        role="group"
+        aria-label={t.theme}
+        class="absolute right-0 z-[var(--vl-z-dropdown)] mt-2 w-44 rounded-md border border-border bg-surface p-1.5 shadow-lg"
+      >
+        {choices.map(({ value, label, Icon }) => (
+          <button
+            type="button"
+            data-theme-choice={value}
+            aria-pressed="false"
+            class="flex min-h-[var(--vl-touch-min)] w-full items-center gap-3 rounded-sm px-3 text-left text-fg hover:bg-bg-subtle aria-pressed:font-semibold aria-pressed:text-primary"
+          >
+            <Icon class="size-4" aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+    </details>
+  ) : (
+    <div role="group" aria-label={t.theme}>
+      <p class="px-1 text-caption font-semibold uppercase tracking-wider text-fg-muted">{t.theme}</p>
+      <div class="mt-2 grid grid-cols-3 gap-2">
+        {choices.map(({ value, label, Icon }) => (
+          <button
+            type="button"
+            data-theme-choice={value}
+            aria-pressed="false"
+            class="flex min-h-[var(--vl-touch-min)] flex-col items-center justify-center gap-1 rounded-md border border-border bg-surface px-2 py-2 text-sm text-fg aria-pressed:border-primary aria-pressed:font-semibold aria-pressed:text-primary"
+          >
+            <Icon class="size-4" aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  import { initThemeToggles } from '../../scripts/theme';
+  initThemeToggles();
+</script>

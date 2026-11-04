@@ -1,0 +1,38 @@
+---
+import { Baby, Brain, HeartHandshake, MessageCircle, UserRound, Users } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import PageHero from '../components/site/PageHero.astro';
+import Card from '../components/ui/Card.astro';
+import { getDictionary } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const p = getDictionary(locale).pages.useCases;
+const icons = [Users, Brain, HeartHandshake, Baby, MessageCircle, UserRound];
+---
+
+<PageHero locale={locale} routeKey="useCases" eyebrow={p.eyebrow} title={p.h1} intro={p.intro} />
+
+<section class="section" aria-label={p.eyebrow}>
+  <div class="container-page">
+    <ul class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {p.cases.map((c, i) => {
+        const Icon = icons[i] ?? UserRound;
+        return (
+          <li>
+            <Card as="article" class="h-full" padding="lg">
+              <span class="flex size-12 items-center justify-center rounded-md bg-primary-soft text-primary">
+                <Icon class="size-6" aria-hidden="true" />
+              </span>
+              <h2 class="mt-6 text-h4">{c.title}</h2>
+              <p class="mt-3 text-fg-muted">{c.body}</p>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,102 @@
+---
+import { Check, Infinity as InfinityIcon, X } from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import EmergencyPreview from '../components/marketing/EmergencyPreview.astro';
+import PageHero from '../components/site/PageHero.astro';
+import Card from '../components/ui/Card.astro';
+import { getDictionary } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const p = getDictionary(locale).pages.howItWorks;
+---
+
+<PageHero locale={locale} routeKey="howItWorks" eyebrow={p.eyebrow} title={p.h1} intro={p.intro} />
+
+<section class="section" aria-label={p.eyebrow}>
+  <div class="container-page grid gap-14 lg:grid-cols-[1.2fr_0.8fr]">
+    <ol class="vl-timeline grid gap-10">
+      {p.steps.map((step) => (
+        <li class="relative pl-10">
+          <span class="vl-timeline__dot" aria-hidden="true" />
+          <h2 class="text-h3">{step.title}</h2>
+          <p class="mt-3 max-w-[60ch] text-fg-muted">{step.body}</p>
+        </li>
+      ))}
+    </ol>
+    <div class="flex justify-center lg:sticky lg:top-28 lg:self-start">
+      <EmergencyPreview locale={locale} />
+    </div>
+  </div>
+</section>
+
+<section class="section bg-surface" aria-label={p.helperSees.title}>
+  <div class="container-page grid gap-6 md:grid-cols-2">
+    <Card variant="accent" padding="lg">
+      <h2 class="text-h3">{p.helperSees.title}</h2>
+      <ul class="mt-6 grid gap-3">
+        {p.helperSees.items.map((item) => (
+          <li class="flex items-start gap-3">
+            <Check class="mt-1 size-5 shrink-0 text-success" aria-hidden="true" />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </Card>
+    <Card variant="subtle" padding="lg">
+      <h2 class="text-h3">{p.neverShown.title}</h2>
+      <ul class="mt-6 grid gap-3">
+        {p.neverShown.items.map((item) => (
+          <li class="flex items-start gap-3">
+            <X class="mt-1 size-5 shrink-0 text-danger" aria-hidden="true" />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="permanent-title">
+  <div class="container-page">
+    <div class="grid gap-6 rounded-xl bg-surface-brand p-8 text-fg-on-brand sm:p-12 md:grid-cols-[auto_1fr] md:gap-10">
+      <span class="flex size-16 items-center justify-center rounded-lg bg-white/10 text-brand-mint">
+        <InfinityIcon class="size-8" aria-hidden="true" />
+      </span>
+      <div>
+        <h2 id="permanent-title" class="text-h2 !text-fg-on-brand">
+          {p.permanent.title}
+        </h2>
+        <p class="mt-4 max-w-3xl text-lg text-fg-on-brand-muted">{p.permanent.body}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .vl-timeline {
+    position: relative;
+  }
+  .vl-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.6875rem;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    width: 2px;
+    background: linear-gradient(var(--vl-primary), var(--vl-border));
+  }
+  .vl-timeline__dot {
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--vl-surface);
+    border: 3px solid var(--vl-primary);
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/manrope/wght.css';
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import manropeLatin from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import '../styles/global.css';
+import type { Locale } from '@vireluma/domain';
+import SeoHead, { type Alternate } from '../components/seo/SeoHead.astro';
+import { build, urls } from '../config/site';
+import { HTML_LANG } from '../i18n';
+
+interface Props {
+  locale: Locale | null;
+  title: string;
+  description: string;
+  path: string;
+  alternates?: Alternate[];
+  xDefaultPath?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+}
+
+const props = Astro.props;
+const lang = props.locale ? HTML_LANG[props.locale] : 'es';
+// Search Console ownership token (public by nature); only emitted on production builds.
+const siteVerification = build.indexable ? import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION : undefined;
+---
+
+<!doctype html>
+<html lang={lang} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F7FAFC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0B1D2E" media="(prefers-color-scheme: dark)" />
+    <meta name="generator" content={`VIRELUMA ${build.version}`} />
+    <meta name="vireluma:build" content={`${build.version}+${build.sha.slice(0, 12)}`} />
+    {siteVerification && <meta name="google-site-verification" content={siteVerification} />}
+    <script is:inline>
+      // Apply the saved theme before first paint (no flash). Preference only; never sensitive data.
+      (() => {
+        let pref = 'system';
+        try {
+          pref = localStorage.getItem('vireluma-theme') || 'system';
+        } catch {
+          /* storage blocked: follow the system preference */
+        }
+        const dark =
+          pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.themePref = pref;
+      })();
+    </script>
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={manropeLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href={urls.asset('brand/icons/favicon.ico')} sizes="48x48" />
+    <link rel="icon" href={urls.asset('brand/icons/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={urls.asset('brand/icons/apple-touch-icon.png')} />
+    <link rel="manifest" href={urls.asset('manifest.webmanifest')} />
+    <SeoHead {...props} />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <slot />
+  </body>
+</html>

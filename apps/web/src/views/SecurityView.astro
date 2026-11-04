@@ -1,0 +1,68 @@
+---
+import {
+  Baby,
+  Database,
+  KeyRound,
+  Scale,
+  SearchX,
+  ShieldAlert,
+  ShieldCheck,
+  UserRoundCheck,
+} from '@lucide/astro';
+import type { Locale } from '@vireluma/domain';
+import PageHero from '../components/site/PageHero.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import { securityPolicyUrl } from '../config/site';
+import { getDictionary } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getDictionary(locale);
+const p = t.pages.security;
+const icons = [ShieldCheck, KeyRound, Database, SearchX, UserRoundCheck, Baby];
+---
+
+<PageHero locale={locale} routeKey="security" eyebrow={p.eyebrow} title={p.h1} intro={p.intro} />
+
+<section class="section" aria-label={p.eyebrow}>
+  <div class="container-page">
+    <ul class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {p.principles.map((item, i) => {
+        const Icon = icons[i] ?? ShieldCheck;
+        return (
+          <li>
+            <Card as="article" class="h-full" padding="lg">
+              <Icon class="size-7 text-primary" aria-hidden="true" />
+              <h2 class="mt-5 text-h4">{item.title}</h2>
+              <p class="mt-3 text-fg-muted">{item.body}</p>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<section class="section bg-surface" aria-label={p.legal.title}>
+  <div class="container-page grid gap-6 lg:grid-cols-2">
+    <Card variant="accent" padding="lg">
+      <Scale class="size-7 text-primary" aria-hidden="true" />
+      <h2 class="mt-5 text-h3">{p.legal.title}</h2>
+      <p class="mt-4 text-fg">{p.legal.body}</p>
+    </Card>
+    <Card variant="subtle" padding="lg">
+      <ShieldAlert class="size-7 text-primary" aria-hidden="true" />
+      <h2 class="mt-5 text-h3">{p.report.title}</h2>
+      <p class="mt-4 text-fg">{p.report.body}</p>
+      <div class="mt-6">
+        <Button href={securityPolicyUrl} external externalLabel={t.a11y.opensInNewTab} variant="outline">
+          {t.footer.security}
+        </Button>
+      </div>
+    </Card>
+  </div>
+</section>

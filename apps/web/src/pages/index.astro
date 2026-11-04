@@ -1,0 +1,85 @@
+---
+/**
+ * x-default entry point. Lists every language instead of auto-redirecting, so
+ * crawlers and users always reach a real page. A small script suggests the
+ * visitor's browser language without forcing a redirect.
+ */
+import { ArrowRight } from '@lucide/astro';
+import { DEFAULT_LOCALE } from '@vireluma/domain';
+import Logo from '../components/brand/Logo.astro';
+import { urls } from '../config/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { HTML_LANG, LOCALES, alternates, getDictionary, routePath } from '../i18n';
+import { organization } from '../lib/structured-data';
+
+const t = getDictionary(DEFAULT_LOCALE);
+const options = LOCALES.map((l) => {
+  const d = getDictionary(l);
+  return {
+    locale: l,
+    name: d.meta.languageName,
+    heading: d.languageChooser.heading,
+    tagline: d.meta.tagline,
+  };
+});
+---
+
+<BaseLayout
+  locale={null}
+  title="VIRELUMA — Every life deserves to be found · Cada vida merece ser encontrada"
+  description={`${getDictionary('en').languageChooser.description} ${t.languageChooser.description}`}
+  path=""
+  alternates={alternates('home')}
+  xDefaultPath=""
+  jsonLd={[organization()]}
+>
+  <main id="main" class="flex flex-1 items-center bg-surface-brand text-fg-on-brand">
+    <div class="container-page py-16">
+      <div class="h-12">
+        <Logo tone="on-dark" class="h-12" />
+      </div>
+      <h1 class="mt-12 text-h1 !text-fg-on-brand">
+        <span lang="es">Elige tu idioma</span>
+        <span class="text-fg-on-brand-muted" aria-hidden="true">
+          {' '}
+          ·{' '}
+        </span>
+        <span lang="en">Choose your language</span>
+      </h1>
+      <ul class="mt-10 grid gap-4 sm:grid-cols-2" data-language-list>
+        {options.map((o) => (
+          <li>
+            <a
+              href={urls.path(routePath(o.locale, 'home'))}
+              hreflang={HTML_LANG[o.locale]}
+              lang={HTML_LANG[o.locale]}
+              data-locale={o.locale}
+              class="group flex min-h-24 items-center justify-between gap-4 rounded-lg border border-white/15 bg-white/[0.04] px-6 py-5 text-fg-on-brand no-underline transition-colors hover:border-brand-mint hover:bg-white/[0.08] data-[suggested=true]:border-brand-mint"
+            >
+              <span>
+                <span class="block font-display text-h4 font-bold">{o.name}</span>
+                <span class="mt-1 block text-sm text-fg-on-brand-muted">{o.tagline}</span>
+              </span>
+              <ArrowRight
+                class="size-6 shrink-0 text-brand-mint transition-transform group-hover:translate-x-1"
+                aria-hidden="true"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  import { negotiateLocale } from '@vireluma/domain';
+  // Highlight (never force) the visitor's likely language and move it first.
+  const preferred = negotiateLocale(navigator.languages ?? [navigator.language]);
+  const link = document.querySelector<HTMLAnchorElement>(`[data-locale="${preferred}"]`);
+  const item = link?.closest('li');
+  if (link && item?.parentElement) {
+    link.dataset.suggested = 'true';
+    item.parentElement.prepend(item);
+  }
+</script>
