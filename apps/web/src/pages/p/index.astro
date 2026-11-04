@@ -22,7 +22,6 @@ const payload = Object.fromEntries(
       ...DICTIONARIES[l].emergency,
       disclaimer: DICTIONARIES[l].footer.disclaimer,
       languageName: DICTIONARIES[l].meta.languageName,
-      home: urls.path(routePath(l, 'home')),
     },
   ]),
 ) as Record<Locale, unknown>;

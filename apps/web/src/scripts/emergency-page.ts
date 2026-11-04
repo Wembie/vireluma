@@ -15,11 +15,13 @@ import {
   type Locale,
   type PublicId,
 } from '@vireluma/domain';
+import { urls } from '../config/site';
+import { routePath } from '../i18n/routes';
 import type { Dictionary } from '../i18n/types';
 import { buttonClass } from '../components/ui/variants';
 import { resolveEmergencyProfile, type ResolveOutcome } from '../lib/backend/emergency';
 
-type Strings = Dictionary['emergency'] & { disclaimer: string; languageName: string; home: string };
+type Strings = Dictionary['emergency'] & { disclaimer: string; languageName: string };
 type State = { kind: 'loading' } | { kind: 'manual' } | { kind: 'result'; outcome: ResolveOutcome };
 
 const fill = (template: string, values: Record<string, string>) =>
@@ -81,7 +83,8 @@ export function start() {
     const about = document.getElementById('ep-about');
     if (about) {
       about.textContent = s.about;
-      about.setAttribute('href', s.home);
+      // Built from code and the validated locale, never from text read out of the DOM.
+      about.setAttribute('href', urls.path(routePath(locale, 'home')));
     }
   };
 
