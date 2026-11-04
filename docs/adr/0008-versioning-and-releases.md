@@ -13,9 +13,11 @@
   `git-cliff` can draft changelog entries; a human curates `CHANGELOG.md`.
 - The build embeds version and commit SHA (`/version.json`, `<meta name="vireluma:build">`,
   footer) for deployment traceability.
-- Releases are manual (`release.yml`, `workflow_dispatch` on `main`): the operator types the
-  version to confirm; the workflow checks SemVer, a dated CHANGELOG section, tag uniqueness and a
-  successful production deploy of the same commit, then creates the annotated tag and the GitHub
-  Release with notes, SHA, site URL and run link. No automatic release per commit.
+- Releases are **automatic and version-driven** (amended 2026-11-04 at the owner's request): after
+  `deploy-pages.yml` verifies the live deployment, it calls `release.yml`. If tag `v<VERSION>`
+  does not exist, the workflow checks SemVer and a dated CHANGELOG section, then creates the
+  annotated tag on the deployed commit and the GitHub Release with notes, SHA, site URL and run
+  link. If the tag exists it does nothing, so ordinary merges never create releases and duplicate
+  releases are impossible. A manual `workflow_dispatch` run on `main` remains for backfills.
 
 Process: [docs/deployment/releases.md](../deployment/releases.md).
