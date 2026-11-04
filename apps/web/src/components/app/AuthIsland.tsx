@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
+  LOCALES,
+  isLocale,
   parseEmailLinkDestination,
   validateEmail,
   validatePassword,
@@ -9,14 +11,16 @@ import {
 } from '@vireluma/domain';
 import type { AppPage, Dictionary } from '../../i18n';
 import { backendConfigured, createSupabaseAuth } from '../../lib/backend/supabase-auth';
-import { buttonClass } from '../ui/variants';
+import { getAccountProfile, updateAccountProfile, type AccountProfile } from '../../lib/backend/data';
+import { FIELD_CONTROL, buttonClass } from '../ui/variants';
+import { languageName } from './PersonFields';
 import { Field, FormMessage, SubmitButton } from './ui';
 
 type Strings = Dictionary['app'];
-type InteractivePage = Exclude<AppPage, 'check-email'>;
+export type AuthPage = 'login' | 'register' | 'forgot-password' | 'reset-password' | 'callback' | 'settings';
 
 interface Props {
-  page: InteractivePage;
+  page: AuthPage;
   locale: string;
   strings: Strings;
   /** Root-relative paths of every account page for this locale. */
@@ -48,8 +52,8 @@ export default function AuthIsland({ page, locale, strings, paths }: Props) {
       return <Reset {...shared} />;
     case 'callback':
       return <Callback {...shared} />;
-    case 'account':
-      return <Account {...shared} />;
+    case 'settings':
+      return <Account {...shared} locale={locale} />;
   }
 }
 
@@ -87,7 +91,9 @@ function Login({ auth, strings, paths }: Shared) {
     void run(async () => {
       const result = await auth.signIn(get('email'), get('password'));
       if (!result.ok) return result.error;
-      window.location.assign(paths.account);
+      // Only allow-listed return targets (no open redirects).
+      const next = new URLSearchParams(window.location.search).get('next');
+      window.location.assign(next === 'invite' ? paths.invite : paths.account);
       return null;
     });
   };
@@ -292,7 +298,7 @@ function Callback({ auth, strings, paths }: Shared) {
   );
 }
 
-function Account({ auth, strings, paths }: Shared) {
+function Account({ auth, strings, paths, locale }: Shared & { locale: string }) {
   const { loading, user } = useCurrentUser(auth);
   const { busy, error, run } = useSubmit();
   const [confirming, setConfirming] = useState(false);
@@ -331,12 +337,7 @@ function Account({ auth, strings, paths }: Shared) {
         </p>
       </section>
 
-      <section aria-labelledby="people-title" className="rounded-lg bg-bg-subtle p-5">
-        <h2 id="people-title" className="text-h4">
-          {strings.account.peopleTitle}
-        </h2>
-        <p className="mt-2 text-fg">{strings.account.peopleBody}</p>
-      </section>
+      <AccountProfileForm userId={user.id} strings={strings} locale={locale} />
 
       <section className="flex flex-col gap-3 sm:flex-row">
         <button
@@ -405,5 +406,84 @@ function Account({ auth, strings, paths }: Shared) {
         )}
       </section>
     </div>
+  );
+}
+
+/** Display name (shown to co-members) and preferred language of the account. */
+function AccountProfileForm({
+  userId,
+  strings,
+  locale,
+}: {
+  userId: string;
+  strings: Strings;
+  locale: string;
+}) {
+  const [profile, setProfile] = useState<AccountProfile | null>(null);
+  const [state, setState] = useState<'idle' | 'busy' | 'saved' | 'error'>('idle');
+
+  useEffect(() => {
+    void getAccountProfile(userId)
+      .then(setProfile)
+      .catch(() => setState('error'));
+  }, [userId]);
+
+  if (!profile)
+    return state === 'error' ? <FormMessage tone="danger">{strings.errors.unknown}</FormMessage> : null;
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const get = formData(event);
+    const name = get('displayName').trim().slice(0, 80);
+    const preferred = get('locale');
+    setState('busy');
+    void updateAccountProfile(userId, {
+      display_name: name || null,
+      preferred_locale: isLocale(preferred) ? preferred : profile.preferred_locale,
+    }).then(
+      () => setState('saved'),
+      () => setState('error'),
+    );
+  };
+
+  return (
+    <section aria-labelledby="profile-title" className="grid gap-4">
+      <h2 id="profile-title" className="text-h4">
+        {strings.settings.profileTitle}
+      </h2>
+      <form className="grid gap-5" onSubmit={onSubmit} noValidate>
+        <Field
+          label={strings.form.displayName}
+          hint={strings.form.displayNameHint}
+          name="displayName"
+          defaultValue={profile.display_name ?? ''}
+          maxLength={80}
+          autoComplete="name"
+        />
+        <div className="grid gap-1.5">
+          <label htmlFor="account-locale" className="text-sm font-semibold text-fg">
+            {strings.form.accountLocale}
+          </label>
+          <select
+            id="account-locale"
+            name="locale"
+            defaultValue={profile.preferred_locale}
+            className={`${FIELD_CONTROL} h-[var(--vl-control-lg)]`}
+          >
+            {LOCALES.map((l) => (
+              <option key={l} value={l}>
+                {languageName(l, isLocale(locale) ? locale : 'es')}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div aria-live="polite">
+          {state === 'saved' && <FormMessage tone="success">{strings.common.saved}</FormMessage>}
+          {state === 'error' && <FormMessage tone="danger">{strings.errors.unknown}</FormMessage>}
+        </div>
+        <div className="sm:max-w-xs">
+          <SubmitButton busy={state === 'busy'}>{strings.common.save}</SubmitButton>
+        </div>
+      </form>
+    </section>
   );
 }

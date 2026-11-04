@@ -2,6 +2,9 @@
 /**
  * Layout for the account area (/{locale}/app/...). Always noindex; minimal
  * chrome so forms stay focused and fast on low-end phones.
+ *
+ * `narrow`/`medium` pages get a heading and a card from the layout; `wide`
+ * workspace pages render their own headings (they depend on loaded data).
  */
 import type { Locale } from '@vireluma/domain';
 import Logo from '../components/brand/Logo.astro';
@@ -15,14 +18,27 @@ interface Props {
   locale: Locale;
   page: AppPage;
   title: string;
+  width?: 'narrow' | 'medium' | 'wide';
 }
 
-const { locale, page, title } = Astro.props;
+const { locale, page, title, width = 'narrow' } = Astro.props;
 const t = getDictionary(locale);
 const hrefs = Object.fromEntries(LOCALES.map((l) => [l, urls.path(appPath(l, page))])) as Record<
   Locale,
   string
 >;
+const SIGNED_IN: AppPage[] = ['account', 'new', 'person', 'qr', 'invite', 'settings'];
+const nav = SIGNED_IN.includes(page)
+  ? [
+      { href: urls.path(appPath(locale, 'account')), label: t.app.nav.people, current: page !== 'settings' },
+      {
+        href: urls.path(appPath(locale, 'settings')),
+        label: t.app.nav.account,
+        current: page === 'settings',
+      },
+    ]
+  : [];
+const container = { narrow: 'max-w-md', medium: 'max-w-2xl', wide: 'max-w-6xl' }[width];
 ---
 
 <BaseLayout
@@ -32,27 +48,62 @@ const hrefs = Object.fromEntries(LOCALES.map((l) => [l, urls.path(appPath(l, pag
   path={appPath(locale, page)}
   noindex
 >
-  <header class="border-b border-border bg-bg">
+  <header class="border-b border-border bg-bg print:hidden">
     <div class="container-page flex h-16 items-center justify-between gap-4">
-      <a href={urls.path(routePath(locale, 'home'))} class="h-8" aria-label={t.a11y.homeLink}>
-        <Logo label={null} class="h-8" />
-      </a>
+      <div class="flex min-w-0 items-center gap-2 sm:gap-4">
+        <a href={urls.path(routePath(locale, 'home'))} class="h-8 shrink-0" aria-label={t.a11y.homeLink}>
+          {/* Symbol only on small screens so the account navigation always fits. */}
+          <span class="block h-8 sm:hidden">
+            <Logo label={null} variant="symbol" />
+          </span>
+          <span class="hidden h-8 sm:block">
+            <Logo label={null} />
+          </span>
+        </a>
+        {nav.length > 0 && (
+          <nav aria-label={t.app.nav.label}>
+            <ul class="flex">
+              {nav.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={item.current ? 'page' : undefined}
+                    class="inline-flex min-h-[var(--vl-touch-min)] items-center rounded-md px-2 text-sm font-semibold sm:px-3 text-fg-muted no-underline hover:bg-bg-subtle hover:text-fg aria-[current=page]:text-fg aria-[current=page]:underline aria-[current=page]:decoration-primary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
       <div class="flex items-center gap-1">
         <LanguageSwitcher locale={locale} hrefs={hrefs} />
         <ThemeToggle locale={locale} />
       </div>
     </div>
   </header>
-  <main id="main" tabindex="-1" class="flex flex-1 justify-center px-4 py-10 focus:outline-none sm:py-16">
-    <div class="w-full max-w-md">
-      <h1 class="text-h2">{title}</h1>
-      <slot name="lead" />
-      <div class="mt-8 rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8">
+  <main
+    id="main"
+    tabindex="-1"
+    class="flex flex-1 justify-center px-4 py-8 focus:outline-none sm:py-12 print:p-0"
+  >
+    <div class:list={['w-full', container]}>
+      {width === 'wide' ? (
         <slot />
-      </div>
+      ) : (
+        <>
+          <h1 class="text-h2">{title}</h1>
+          <slot name="lead" />
+          <div class="mt-8 rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8">
+            <slot />
+          </div>
+        </>
+      )}
     </div>
   </main>
-  <footer class="border-t border-border py-6">
+  <footer class="border-t border-border py-6 print:hidden">
     <p class="container-page text-sm text-fg-muted">{t.footer.disclaimer}</p>
   </footer>
 </BaseLayout>

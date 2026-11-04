@@ -1,10 +1,18 @@
 ---
-/** Account area: one static shell per page and locale; behaviour lives in AuthIsland. */
+/**
+ * Account area: one static shell per page and locale. Behaviour lives in
+ * per-page islands, so each page ships only the JavaScript it needs.
+ */
 import type { GetStaticPaths } from 'astro';
 import type { Locale } from '@vireluma/domain';
 import AuthIsland from '../../../components/app/AuthIsland';
+import DashboardIsland from '../../../components/app/DashboardIsland';
+import InviteIsland from '../../../components/app/InviteIsland';
+import NewPersonIsland from '../../../components/app/NewPersonIsland';
+import PersonIsland from '../../../components/app/PersonIsland';
+import QrStudioIsland from '../../../components/app/QrStudioIsland';
 import { urls } from '../../../config/site';
-import { APP_PAGES, LOCALES, appPath, getDictionary, type AppPage } from '../../../i18n';
+import { APP_PAGES, DICTIONARIES, LOCALES, appPath, getDictionary, type AppPage } from '../../../i18n';
 import AppLayout from '../../../layouts/AppLayout.astro';
 
 export const getStaticPaths = (() =>
@@ -26,9 +34,20 @@ const paths = Object.fromEntries(APP_PAGES.map((p) => [p, urls.path(appPath(loca
   AppPage,
   string
 >;
+const island = { locale, strings: t, paths };
+// Printed labels can be in any language, chosen in the QR studio.
+const printStrings = Object.fromEntries(LOCALES.map((l) => [l, DICTIONARIES[l].print])) as Record<
+  Locale,
+  (typeof DICTIONARIES)['es']['print']
+>;
 
 const TITLES: Record<AppPage, string> = {
-  account: t.account.title,
+  account: t.dashboard.title,
+  new: t.newPerson.title,
+  person: t.person.profile.title,
+  qr: t.qr.title,
+  invite: t.invite.title,
+  settings: t.settings.title,
   login: t.login.title,
   register: t.register.title,
   'check-email': t.checkEmail.title,
@@ -40,23 +59,40 @@ const LEADS: Partial<Record<AppPage, string>> = {
   login: t.login.lead,
   register: t.register.lead,
   'forgot-password': t.forgot.lead,
+  new: t.newPerson.lead,
+};
+const WIDTH: Partial<Record<AppPage, 'narrow' | 'medium' | 'wide'>> = {
+  account: 'wide',
+  person: 'wide',
+  qr: 'wide',
+  new: 'medium',
+  settings: 'medium',
 };
 ---
 
-<AppLayout locale={locale} page={page} title={TITLES[page]}>
+<AppLayout locale={locale} page={page} title={TITLES[page]} width={WIDTH[page] ?? 'narrow'}>
   {LEADS[page] && (
     <p slot="lead" class="mt-3 text-lg text-fg-muted">
       {LEADS[page]}
     </p>
   )}
-  {page === 'check-email' ? (
+  {page === 'account' && <DashboardIsland client:load {...island} />}
+  {page === 'new' && <NewPersonIsland client:load {...island} />}
+  {page === 'person' && <PersonIsland client:load {...island} />}
+  {page === 'qr' && <QrStudioIsland client:load {...island} print={printStrings} />}
+  {page === 'invite' && <InviteIsland client:load {...island} />}
+  {page === 'check-email' && (
     <div class="grid gap-5">
       <p class="text-fg">{t.checkEmail.body}</p>
       <a href={paths.login} class="font-semibold">
         {t.signIn}
       </a>
     </div>
-  ) : (
-    <AuthIsland client:load page={page} locale={locale} strings={t} paths={paths} />
   )}
+  {(page === 'settings' ||
+    page === 'login' ||
+    page === 'register' ||
+    page === 'forgot-password' ||
+    page === 'reset-password' ||
+    page === 'callback') && <AuthIsland client:load page={page} locale={locale} strings={t} paths={paths} />}
 </AppLayout>
