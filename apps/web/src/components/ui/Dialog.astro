@@ -1,0 +1,85 @@
+---
+/**
+ * Modal dialog on native <dialog>.showModal(): focus trapping, Escape to
+ * close, inert background and top-layer stacking are handled by the browser.
+ * Open with any element carrying data-dialog-open="<id>".
+ */
+import { X } from '@lucide/astro';
+
+interface Props {
+  id: string;
+  title: string;
+  closeLabel: string;
+  description?: string;
+  class?: string;
+}
+
+const { id, title, closeLabel, description, class: className } = Astro.props;
+---
+
+<dialog
+  id={id}
+  aria-labelledby={`${id}-title`}
+  aria-describedby={description ? `${id}-desc` : undefined}
+  class:list={[
+    'vl-dialog m-auto w-[min(32rem,calc(100vw-2rem))] rounded-lg border border-border bg-surface p-0 text-fg shadow-lg',
+    className,
+  ]}
+>
+  <div class="flex items-start justify-between gap-4 p-6 pb-0">
+    <h2 id={`${id}-title`} class="text-h4">
+      {title}
+    </h2>
+    <button
+      type="button"
+      data-dialog-close
+      aria-label={closeLabel}
+      class="-mt-1 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-pill text-fg hover:bg-bg-subtle"
+    >
+      <X class="size-5" aria-hidden="true" />
+    </button>
+  </div>
+  {description && (
+    <p id={`${id}-desc`} class="px-6 pt-2 text-fg-muted">
+      {description}
+    </p>
+  )}
+  <div class="p-6">
+    <slot />
+  </div>
+  <div class="flex flex-col-reverse gap-3 border-t border-border p-6 sm:flex-row sm:justify-end empty:hidden">
+    <slot name="actions" />
+  </div>
+</dialog>
+
+<style>
+  .vl-dialog::backdrop {
+    background: rgb(11 29 46 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+  .vl-dialog[open] {
+    animation: vl-dialog-in var(--vl-duration-base) var(--vl-ease-out);
+  }
+  @keyframes vl-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    const opener = target.closest<HTMLElement>('[data-dialog-open]');
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.dialogOpen ?? '');
+      if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      return;
+    }
+    const closer = target.closest('[data-dialog-close]');
+    closer?.closest('dialog')?.close();
+    // Click on the backdrop (the dialog element itself) closes it.
+    if (target instanceof HTMLDialogElement) target.close();
+  });
+</script>

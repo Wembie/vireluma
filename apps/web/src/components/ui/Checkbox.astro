@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+  id: string;
+  label: string;
+  description?: string;
+  class?: string;
+} & Omit<HTMLAttributes<'input'>, 'class' | 'type'>;
+
+const { id, label, description, class: className, ...rest } = Astro.props;
+---
+
+<div class:list={['flex items-start gap-3', className]}>
+  <input
+    id={id}
+    type="checkbox"
+    class="mt-0.5 size-6 shrink-0 cursor-pointer rounded-sm border-border-strong accent-[var(--vl-primary)] disabled:cursor-not-allowed"
+    aria-describedby={description ? `${id}-desc` : undefined}
+    {...rest}
+  />
+  <div>
+    <label for={id} class="cursor-pointer font-medium text-fg">
+      {label}
+    </label>
+    {description && (
+      <p id={`${id}-desc`} class="text-sm text-fg-muted">
+        {description}
+      </p>
+    )}
+  </div>
+</div>

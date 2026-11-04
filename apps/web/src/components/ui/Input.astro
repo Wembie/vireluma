@@ -1,0 +1,29 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { FIELD_CONTROL } from './variants';
+
+type Props = {
+  id: string;
+  hint?: boolean;
+  error?: boolean;
+  size?: 'md' | 'lg';
+  class?: string;
+} & Omit<HTMLAttributes<'input'>, 'class' | 'size'>;
+
+const { id, hint = false, error = false, size = 'md', class: className, required, ...rest } = Astro.props;
+const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
+---
+
+<input
+  id={id}
+  class:list={[
+    FIELD_CONTROL,
+    size === 'lg' ? 'h-[var(--vl-control-lg)] text-lg' : 'h-[var(--vl-control-md)]',
+    className,
+  ]}
+  aria-describedby={describedBy}
+  aria-invalid={error ? 'true' : undefined}
+  required={required}
+  aria-required={required ? 'true' : undefined}
+  {...rest}
+/>

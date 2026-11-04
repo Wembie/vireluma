@@ -1,0 +1,41 @@
+---
+/**
+ * EmptyState / LoadingState / ErrorState in one component so every screen
+ * handles the three non-happy paths the same way.
+ */
+import { CircleAlert, Inbox, LoaderCircle } from '@lucide/astro';
+
+interface Props {
+  kind: 'empty' | 'loading' | 'error';
+  title: string;
+  body?: string;
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { kind, title, body, headingLevel: H = 'h3', class: className } = Astro.props;
+const Icon = kind === 'error' ? CircleAlert : kind === 'loading' ? LoaderCircle : Inbox;
+---
+
+<div
+  class:list={[
+    'flex flex-col items-center rounded-lg border border-dashed border-border-strong px-6 py-12 text-center',
+    className,
+  ]}
+  role={kind === 'error' ? 'alert' : kind === 'loading' ? 'status' : undefined}
+  aria-busy={kind === 'loading' ? 'true' : undefined}
+>
+  <span
+    class:list={[
+      'flex size-14 items-center justify-center rounded-full',
+      kind === 'error' ? 'bg-danger-soft text-danger' : 'bg-primary-soft text-primary',
+    ]}
+  >
+    <Icon class:list={['size-7', kind === 'loading' && 'animate-spin']} aria-hidden="true" />
+  </span>
+  <H class="mt-5 text-h4">{title}</H>
+  {body && <p class="mt-2 max-w-md text-fg-muted">{body}</p>}
+  <div class="mt-6 empty:hidden">
+    <slot />
+  </div>
+</div>

@@ -1,0 +1,36 @@
+---
+/** Square icon-only button. `label` is required: icon-only controls must have an accessible name. */
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+  label: string;
+  variant?: 'ghost' | 'outline' | 'primary';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+} & Omit<HTMLAttributes<'button'>, 'class' | 'aria-label'>;
+
+const { label, variant = 'ghost', size = 'md', class: className, type = 'button', ...rest } = Astro.props;
+
+const variants = {
+  ghost: 'text-fg hover:bg-bg-subtle',
+  outline: 'border border-border-strong bg-surface text-fg hover:border-primary hover:text-primary',
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
+};
+const sizes = { sm: 'size-10', md: 'size-11', lg: 'size-14' };
+---
+
+<button
+  type={type}
+  aria-label={label}
+  title={label}
+  class:list={[
+    'inline-flex shrink-0 items-center justify-center rounded-pill transition-colors duration-150',
+    'disabled:cursor-not-allowed disabled:text-disabled-fg disabled:bg-transparent',
+    variants[variant],
+    sizes[size],
+    className,
+  ]}
+  {...rest}
+>
+  <slot />
+</button>

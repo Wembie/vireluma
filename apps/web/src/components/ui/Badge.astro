@@ -1,0 +1,25 @@
+---
+import { TONE_SOFT, type Tone } from './variants';
+
+interface Props {
+  tone?: Tone;
+  size?: 'sm' | 'md';
+  /** Shows a status dot; the text must still convey the meaning (never colour alone). */
+  dot?: boolean;
+  class?: string;
+}
+
+const { tone = 'neutral', size = 'md', dot = false, class: className } = Astro.props;
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1.5 rounded-pill font-semibold',
+    size === 'sm' ? 'px-2.5 py-0.5 text-caption' : 'px-3 py-1 text-sm',
+    TONE_SOFT[tone],
+    className,
+  ]}
+>
+  {dot && <span class="size-1.5 rounded-full bg-current" aria-hidden="true" />}
+  <slot />
+</span>

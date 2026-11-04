@@ -1,0 +1,37 @@
+---
+/** Native <select>: the most robust option for assistive tech and mobile pickers. */
+import { ChevronDown } from '@lucide/astro';
+import type { HTMLAttributes } from 'astro/types';
+import { FIELD_CONTROL } from './variants';
+
+type Props = {
+  id: string;
+  options: { value: string; label: string }[];
+  hint?: boolean;
+  error?: boolean;
+  class?: string;
+} & Omit<HTMLAttributes<'select'>, 'class'>;
+
+const { id, options, hint = false, error = false, class: className, value, ...rest } = Astro.props;
+const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
+---
+
+<div class:list={['relative', className]}>
+  <select
+    id={id}
+    class:list={[FIELD_CONTROL, 'h-[var(--vl-control-md)] appearance-none pr-10']}
+    aria-describedby={describedBy}
+    aria-invalid={error ? 'true' : undefined}
+    {...rest}
+  >
+    {options.map((o) => (
+      <option value={o.value} selected={o.value === value}>
+        {o.label}
+      </option>
+    ))}
+  </select>
+  <ChevronDown
+    class="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-fg-muted"
+    aria-hidden="true"
+  />
+</div>

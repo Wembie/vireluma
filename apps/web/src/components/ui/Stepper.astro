@@ -1,0 +1,46 @@
+---
+/**
+ * Multi-step progress (used by the profile wizard in M3). The current step is
+ * marked with aria-current="step"; completed steps say so in text, not colour only.
+ */
+import { Check } from '@lucide/astro';
+
+interface Props {
+  label: string;
+  steps: string[];
+  current: number;
+  completedLabel?: string;
+  class?: string;
+}
+
+const { label, steps, current, completedLabel = 'Completed', class: className } = Astro.props;
+---
+
+<nav aria-label={label} class={className}>
+  <ol class="flex flex-wrap gap-x-2 gap-y-3">
+    {steps.map((step, i) => {
+      const state = i < current ? 'done' : i === current ? 'current' : 'todo';
+      return (
+        <li class="flex items-center gap-2" aria-current={state === 'current' ? 'step' : undefined}>
+          <span
+            class:list={[
+              'flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+              state === 'done' && 'bg-primary text-on-primary',
+              state === 'current' && 'border-2 border-primary bg-surface text-primary',
+              state === 'todo' && 'border border-border-strong bg-surface text-fg-muted',
+            ]}
+          >
+            {state === 'done' ? <Check class="size-4" aria-hidden="true" /> : i + 1}
+          </span>
+          <span class:list={['text-sm', state === 'current' ? 'font-semibold text-fg' : 'text-fg-muted']}>
+            {step}
+            {state === 'done' && <span class="sr-only"> ({completedLabel})</span>}
+          </span>
+          {i < steps.length - 1 && (
+            <span class="mx-1 hidden h-px w-6 bg-border sm:block" aria-hidden="true" />
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>

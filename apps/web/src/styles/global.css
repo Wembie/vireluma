@@ -1,0 +1,217 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* Dark utilities follow the resolved theme on <html>, with the system preference as no-JS fallback. */
+@custom-variant dark {
+  :root[data-theme='dark'] & {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      @slot;
+    }
+  }
+}
+
+/* Tailwind utilities map ONLY to semantic tokens (bg-surface, text-fg, border-border…). */
+@theme inline {
+  --font-sans: var(--vl-font-sans);
+  --font-display: var(--vl-font-display);
+
+  --color-bg: var(--vl-bg);
+  --color-bg-subtle: var(--vl-bg-subtle);
+  --color-surface: var(--vl-surface);
+  --color-surface-brand: var(--vl-surface-brand);
+  --color-surface-accent: var(--vl-surface-accent);
+  --color-fg: var(--vl-fg);
+  --color-fg-muted: var(--vl-fg-muted);
+  --color-fg-heading: var(--vl-fg-heading);
+  --color-fg-on-brand: var(--vl-fg-on-brand);
+  --color-fg-on-brand-muted: var(--vl-fg-on-brand-muted);
+  --color-primary: var(--vl-primary);
+  --color-primary-hover: var(--vl-primary-hover);
+  --color-primary-soft: var(--vl-primary-soft);
+  --color-on-primary: var(--vl-on-primary);
+  --color-secondary: var(--vl-secondary);
+  --color-secondary-hover: var(--vl-secondary-hover);
+  --color-on-secondary: var(--vl-on-secondary);
+  --color-accent: var(--vl-accent);
+  --color-accent-soft: var(--vl-accent-soft);
+  --color-highlight: var(--vl-highlight);
+  --color-border: var(--vl-border);
+  --color-border-strong: var(--vl-border-strong);
+  --color-focus: var(--vl-focus);
+  --color-success: var(--vl-success);
+  --color-success-soft: var(--vl-success-soft);
+  --color-warning: var(--vl-warning);
+  --color-warning-soft: var(--vl-warning-soft);
+  --color-danger: var(--vl-danger);
+  --color-danger-soft: var(--vl-danger-soft);
+  --color-info: var(--vl-info);
+  --color-info-soft: var(--vl-info-soft);
+  --color-disabled-fg: var(--vl-disabled-fg);
+  --color-disabled-bg: var(--vl-disabled-bg);
+  /* Fixed brand colours for brand-only surfaces (logo tiles, wristband renders). */
+  --color-brand-navy: var(--vl-navy-900);
+  --color-brand-teal: var(--vl-teal-700);
+  --color-brand-mint: var(--vl-mint-300);
+  --color-brand-gold: var(--vl-gold-400);
+
+  --text-caption: var(--vl-text-caption);
+  --text-caption--line-height: 1.4;
+  --text-sm: var(--vl-text-sm);
+  --text-sm--line-height: 1.5;
+  --text-base: var(--vl-text-base);
+  --text-base--line-height: 1.65;
+  --text-lg: var(--vl-text-lg);
+  --text-lg--line-height: 1.6;
+  --text-h4: var(--vl-text-h4);
+  --text-h4--line-height: 1.35;
+  --text-h3: var(--vl-text-h3);
+  --text-h3--line-height: 1.3;
+  --text-h2: var(--vl-text-h2);
+  --text-h2--line-height: 1.15;
+  --text-h1: var(--vl-text-h1);
+  --text-h1--line-height: 1.08;
+  --text-display: var(--vl-text-display);
+  --text-display--line-height: 1.04;
+
+  --radius-sm: var(--vl-radius-sm);
+  --radius-md: var(--vl-radius-md);
+  --radius-lg: var(--vl-radius-lg);
+  --radius-xl: var(--vl-radius-xl);
+  --radius-pill: var(--vl-radius-pill);
+
+  --shadow-sm: var(--vl-shadow-sm);
+  --shadow-md: var(--vl-shadow-md);
+  --shadow-lg: var(--vl-shadow-lg);
+
+  --ease-out: var(--vl-ease-out);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--vl-bg);
+    color: var(--vl-fg);
+    font-family: var(--vl-font-sans);
+    font-size: var(--vl-text-base);
+    line-height: 1.65;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--vl-font-display);
+    color: var(--vl-fg-heading);
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--vl-primary);
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--vl-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--vl-highlight);
+    color: var(--vl-navy-950);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: var(--vl-container);
+    margin-inline: auto;
+    padding-inline: var(--vl-gutter);
+  }
+
+  .section {
+    padding-block: var(--vl-space-section);
+  }
+
+  .eyebrow {
+    font-family: var(--vl-font-sans);
+    font-size: var(--vl-text-caption);
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vl-primary);
+  }
+
+  .prose-vl {
+    max-width: 68ch;
+  }
+  .prose-vl > * + * {
+    margin-top: 1em;
+  }
+  .prose-vl h2 {
+    font-size: var(--vl-text-h3);
+    margin-top: 2.25em;
+  }
+  .prose-vl h3 {
+    font-size: var(--vl-text-h4);
+    margin-top: 1.75em;
+  }
+  .prose-vl ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+  .prose-vl li + li {
+    margin-top: 0.4em;
+  }
+
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
