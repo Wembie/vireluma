@@ -29,10 +29,12 @@ Exit: CI green on `dev` and `main`; live site serves the release SHA; Lighthouse
 - [x] Account area: register + email confirmation, sign-in, sign-out (local/global), password
       reset, deletion request — E2E against the local stack (CI database job)
 - [x] Auth port + domain permission matrix
-- [ ] Production auth settings (site URL, redirects, email rules) — needs `supabase login`
+- [x] Production schema applied and recorded; auth settings (site URL, redirects, 12-char
+      passwords, secure password change) applied with `supabase config push`
 - [ ] `deploy-database` job: migrations to production from `main` with approval — needs Supabase
       access token and DB password as `production` environment secrets
-- [ ] Enable accounts in production builds once the two items above are done
+- [ ] Enable accounts in production builds — **on hold by owner decision (2026-11-04)** until a
+      privacy notice (legal review, Ley 1581) and a real SMTP provider exist
 - [ ] Before real families: paid plan with backups, real SMTP, legal review of region/transfer
 
 Exit: cross-tenant and anonymous access tests pass in CI; no service key outside Supabase;
