@@ -42,7 +42,7 @@
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
-    "@lhci/cli": "~0.15.1",
+    "@lhci/cli": "~0.16.0",
     "@vitest/coverage-v8": "~5.0.0",
     "eslint": "^10.14.0",
     "eslint-plugin-astro": "^3.2.1",
