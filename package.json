@@ -54,7 +54,7 @@
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "sharp": "^0.35.5",
-    "supabase": "2.122.0",
+    "supabase": "3.0.0",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.72.1",
     "vitest": "~5.0.0"
